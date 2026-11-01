@@ -5,3 +5,5 @@ Hermes agent at /root/.hermes/hermes-agent/. Native inputs dir: /root/.hermes/ca
 Active projects: 1) Firebase RTDB panel harvesting for Jio Gemini activation (/root/jio_farm/myjio.py, 3 new panels found, farm_run2.log). 2) Claude Pro Hunter (/root/claude_pro_hunter/). 3) MoneyPrinterTurbo (/root/MoneyPrinterTurbo/.venv, port 8501).
 §
 Active projects: 1) Firebase RTDB panel harvesting for Jio Gemini activation (/root/jio_farm/myjio.py, 2804 panels; t.me/pannellooters = image-only, 0 text URLs; use @firebasepanel for text lists; scanner fix: accept boolean-true clients → 141 online devices, 10 activation links total). 2) Claude Pro Hunter. 3) MoneyPrinterTurbo (/root/MoneyPrinterTurbo/.venv, port 8501). 4) REA toolkit (/root/rea/, Node 24 at /tmp/node-v24.22.1-linux-x64/). Promo farm: /root/jio_farm/promo_farm.py.
+§
+VPS RAM total 3911 MB: scan/pool workers >25 get OOM-killed (exit 137). Use 25 workers + streaming flush per result (scan_pool2.py); live output /root/.hermes/cache/scratch/live_panels_now.txt (format url|msgs=N|clients=N).

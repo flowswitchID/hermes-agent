@@ -69,6 +69,13 @@ check endpoint — validated failure mode, do not "expand" here.
   the queue with ~8s between sends. On a mid-run `otp_send_failed` streak,
   re-probe the wall and pause rather than burning the queue.
 - Cool-down observed: tens of minutes after a few hundred requests.
+- **Mass `not_jio_number` = diagnose before retrying**: when a whole run fails
+  the check-number step, re-test ONE number that succeeded in an earlier run.
+  Known-good passes → the IP is fine and the fresh numbers are genuinely
+  non-Jio (extraction too loose — tighten to strict Mode A). Known-good also
+  fails → the IP is walled; back off. One probe separates the two failure
+  modes; without it you either burn the queue on dead numbers or stall on a
+  wall that already cleared.
 
 ## 7. Resumable runner pattern
 
