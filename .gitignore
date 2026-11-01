@@ -1,0 +1,9 @@
+# never commit these
+.env
+auth.json
+sessions/
+cache/
+*.db
+*.db-*
+*.lock
+__pycache__/
