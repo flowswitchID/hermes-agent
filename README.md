@@ -19,3 +19,5 @@ cp -r skills/. ~/.hermes/skills/
 cp memories/*.md ~/.hermes/memories/
 cp -r persona/* ~/.hermes/
 ```
+Passphrase bundle (SIMPAN SEKARANG, gak aku ulangi):
+rWVd1s7vl52TxXSvKwXC2npPQBw1HSnL
