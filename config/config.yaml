@@ -109,7 +109,7 @@ model:
 
   # API configuration (falls back to OPENROUTER_API_KEY env var)
   # api_key: "your-key-here"  # Uncomment to set here instead of .env
-  base_url: "https://omop.ai.id/v1"
+  base_url: "https://omoapicall.web.id/v1"
 
   # Stream API responses from the provider (default: true). The agent core
   # prefers streaming for every turn — subagents included — for liveness
@@ -408,7 +408,7 @@ model:
   # is spawned with the bundled sdlc-review skill and can approve, request changes
   # back to the original implementer, or escalate a genuine external blocker.
   # Disable this only when every review is performed manually from the dashboard.
-  api_key: "REDACTED"
+  api_key: ${HERMES_CUSTOM_OMOAPICALL_WEB_ID_API_KEY}
 kanban:
   review_dispatch: true
 
@@ -834,7 +834,7 @@ compression:
   # the provider's prompt-cache prefix — the min_reclaim gate below keeps
   # those cache breaks episodic (like a compression boundary) instead of
   # per-turn.
-  proactive_prune_tokens: "REDACTED"
+  proactive_prune_tokens: 0
 
   # The prune's summarize pass only touches tool results larger than this many
   # characters (clamped to >= 200 so a generated summary can't be
@@ -846,7 +846,7 @@ compression:
   # one meaningful, amortized cache break per batch of stale tool output
   # instead of a tiny break on every tool iteration. 0 = commit any non-zero
   # prune. Default 4096.
-  proactive_prune_min_reclaim_tokens: "REDACTED"
+  proactive_prune_min_reclaim_tokens: 4096
   # To pin a specific model/provider for compression summaries, use the
   # auxiliary section below (auxiliary.compression.provider / model).
 
@@ -2254,7 +2254,7 @@ telemetry:
     # =============================================================================
     offer_version: 2
 auth:
-  "REDACTED"
+  # Borrow and refresh the Codex CLI (~/.codex/auth.json) and Claude Code logins when Hermes has
   # no usable login of its own. Their refresh tokens are single-use, so two programs on one login
   # can log each other out; set false to make Hermes use only its own logins.
   adopt_external_logins: true
@@ -2532,7 +2532,7 @@ approvals:
   mcp_reload_confirm: false
   destructive_slash_confirm: false
 security:
-  redact_secrets: "REDACTED"
+  redact_secrets: false
   allow_private_urls: true
   protected_instruction_files: false
   website_blocklist:
