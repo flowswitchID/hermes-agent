@@ -1,0 +1,5 @@
+[profile.default]
+src = "."
+lib = "lib"
+via_ir = true
+optimizer = true

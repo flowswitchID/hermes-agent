@@ -1,0 +1,72 @@
+[
+  [
+    "MISSING_STATE_UPDATE",
+    "Map ALL entry points \u2192 side effects. Every path that changes state must call ALL update functions.",
+    "Basin H-01, Loopfi #19"
+  ],
+  [
+    "ORACLE_MANIPULATION",
+    "Check oracle source: slot0/reserves = SPOT = manipulable. Must use TWAP/Chainlink.",
+    "Ronin #27, Cream, bZx, Fei"
+  ],
+  [
+    "ACCOUNTING_ERROR",
+    "Check reward/interest accrual: is balance snapshot at RIGHT time? Before or after state change?",
+    "Loopfi #25, Compound"
+  ],
+  [
+    "MISSING_SLIPPAGE",
+    "Every swap/trade MUST have minOut/maxIn. Check new integrations especially.",
+    "Loopfi #22"
+  ],
+  [
+    "ACCESS_CONTROL_BYPASS",
+    "If whitelist checks selector only: can caller control params that change behavior?",
+    "Kleidi #10"
+  ],
+  [
+    "MISSING_REFUND",
+    "Payable functions: is excess ETH refunded? msg.value vs actual cost.",
+    "Ronin #29"
+  ],
+  [
+    "CALCULATION_ERROR",
+    "Exact-input vs exact-output: fee on CORRECT side? Multiplier/divisor right?",
+    "Ronin #12, Compound"
+  ],
+  [
+    "LOGIC_ERROR",
+    "Trace boolean flags: is there a path that sets true? Or always false?",
+    "Nibiru #78"
+  ],
+  [
+    "WRONG_INPUT",
+    "Does calculation use RIGHT input? User-specific vs global constant?",
+    "Nibiru #75"
+  ],
+  [
+    "FLASH_LOAN",
+    "Any state readable in 1 tx that affects pricing/voting? Snapshot/TWAP defense.",
+    "Beanstalk, Cream, bZx, MakerDAO, Fei"
+  ],
+  [
+    "REENTRANCY",
+    "External call before state update? Cross-function state reads?",
+    "KyberSwap, Curve"
+  ],
+  [
+    "SHARE_INFLATION",
+    "totalAssets reads balanceOf(this)? Virtual shares protection?",
+    "Yearn, Morpho Blue"
+  ],
+  [
+    "ROUNDING",
+    "mulDivDown vs mulDivUp: consistent direction? Accumulated dust?",
+    "dYdX, Echidna L2 harness"
+  ],
+  [
+    "LIQUIDATION_BUG",
+    "Position change without health check? donateToReserves pattern?",
+    "Euler Finance"
+  ]
+]

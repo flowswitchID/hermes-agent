@@ -1,0 +1,40 @@
+{
+  "total_high": 53,
+  "accepted_high": 1,
+  "total_medium": 74,
+  "h01": "Pumps not updated in shift()/sync() \u2192 oracle manipulation",
+  "duplicate_clusters": {
+    "136": 6,
+    "276": 5,
+    "25": 7,
+    "287": 1,
+    "291": 5
+  },
+  "lessons": [
+    {
+      "lesson": "1. ONE BUG, 53 SUBMISSIONS",
+      "detail": "53 people submitted HIGH, only 1 unique bug accepted (H-01). The rest were duplicates or wrong. Competition is BRUTAL.",
+      "action": "Speed matters. First to submit gets primary credit."
+    },
+    {
+      "lesson": "2. DUPLICATE CLUSTERS REVEAL COMMON MISTAKES",
+      "detail": "skim() \"access control\" (6 dups) \u2014 by design, permissionless. shift() \"front-running\" (5 dups) \u2014 MEV, not a bug. fee-on-transfer (5 dups) \u2014 out of scope. These are FALSE POSITIVES that many auditors fall for.",
+      "action": "Before submitting: Is this BY DESIGN? Is this MEV? Is this IN SCOPE?"
+    },
+    {
+      "lesson": "3. THE REAL BUG WAS SUBTLE",
+      "detail": "H-01: shift() and sync() skip _updatePumps(). Not a reentrancy, not an overflow, not access control. It was a MISSING FUNCTION CALL in an alternative code path. The kind of bug that pattern matching CANNOT find.",
+      "action": "For every state-updating function: check ALL entry points call the same update functions. Map: entry point \u2192 side effects."
+    },
+    {
+      "lesson": "4. QUALITY > QUANTITY",
+      "detail": "Many \"low quality report\" rejections. Reports without PoC, without clear impact, without code references \u2192 rejected. Even valid bugs get rejected if poorly written.",
+      "action": "Every submission needs: (1) exact line numbers, (2) clear impact statement, (3) PoC or attack flow, (4) why this is NOT by design."
+    },
+    {
+      "lesson": "5. \"UNSatisfactory\" = VALID BUT NOT EXPLOITABLE",
+      "detail": "Many findings were technically correct but not exploitable. E.g., \"anyone can call skim()\" \u2014 true, but skim only takes excess tokens not in reserves. No fund loss.",
+      "action": "Always calculate: Can attacker PROFIT? If not, its not HIGH."
+    }
+  ]
+}

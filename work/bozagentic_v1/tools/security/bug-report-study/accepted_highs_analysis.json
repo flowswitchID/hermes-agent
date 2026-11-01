@@ -1,0 +1,82 @@
+[
+  {
+    "contest": "Basin 2023-07",
+    "id": 136,
+    "title": "Pumps not updated in shift()/sync() \u2192 oracle manipulation",
+    "pattern": "MISSING_STATE_UPDATE",
+    "root_cause": "Alternative entry points (shift, sync) skip _updatePumps() that swap() calls",
+    "detection": "Map ALL entry points \u2192 side effects. Check if every path that changes reserves also updates oracle/TWAP"
+  },
+  {
+    "contest": "Loopfi 2024-10",
+    "id": 25,
+    "title": "Rewards lost \u2014 _updateRewardIndex() advances lastBalance incorrectly",
+    "pattern": "ACCOUNTING_ERROR",
+    "root_cause": "Reward index update uses wrong balance snapshot, causing reward calculation drift",
+    "detection": "Check reward/interest accrual: is the balance snapshot taken at the RIGHT time? Before or after state change?"
+  },
+  {
+    "contest": "Loopfi 2024-10",
+    "id": 22,
+    "title": "Kyber swaps lack slippage protection",
+    "pattern": "MISSING_SLIPPAGE",
+    "root_cause": "New swap integration added without minAmountOut check",
+    "detection": "Every swap/external trade MUST have slippage protection. Check: is there a minOut/maxIn parameter?"
+  },
+  {
+    "contest": "Loopfi 2024-10",
+    "id": 19,
+    "title": "Interest rate not adjusted on healthy repayment profit",
+    "pattern": "MISSING_STATE_UPDATE",
+    "root_cause": "Repayment profit not fed back into interest rate model",
+    "detection": "Check: when protocol gains/loses value, does the rate model adjust? Or is it stale?"
+  },
+  {
+    "contest": "Kleidi 2024-10",
+    "id": 10,
+    "title": "Hot Signer can pass arbitrary data to partially whitelisted functions",
+    "pattern": "ACCESS_CONTROL_BYPASS",
+    "root_cause": "Whitelist checks function selector but not calldata \u2014 signer can pass malicious params",
+    "detection": "If whitelist checks only function selector: can the CALLER control params that change behavior?"
+  },
+  {
+    "contest": "Ronin 2024-10",
+    "id": 29,
+    "title": "Excess ETH not refunded when minting/increasing liquidity via NonfungiblePositionManager",
+    "pattern": "MISSING_REFUND",
+    "root_cause": "msg.value > required ETH, but excess not returned to user",
+    "detection": "Payable functions: is excess ETH refunded? Check: msg.value vs actual cost"
+  },
+  {
+    "contest": "Ronin 2024-10",
+    "id": 27,
+    "title": "slot0 sqrtPriceX96 can be manipulated (price manipulation)",
+    "pattern": "ORACLE_MANIPULATION",
+    "root_cause": "Using Uniswap V3 slot0 (spot price) instead of TWAP \u2014 manipulable in same tx",
+    "detection": "Check oracle source: slot0() = SPOT = manipulable. Must use TWAP/observe()"
+  },
+  {
+    "contest": "Ronin 2024-10",
+    "id": 12,
+    "title": "V3SwapExactOutput applies fee to wrong amount",
+    "pattern": "CALCULATION_ERROR",
+    "root_cause": "Fee applied to input amount instead of output amount in exact-output swap",
+    "detection": "For exact-input vs exact-output: is the fee applied to the CORRECT side?"
+  },
+  {
+    "contest": "Nibiru 2024-11",
+    "id": 78,
+    "title": "fullRefundLeftoverGas always false \u2014 inner message check missing",
+    "pattern": "LOGIC_ERROR",
+    "root_cause": "Boolean flag never set to true because condition checks wrong message type",
+    "detection": "Trace boolean flags: is there a code path that sets it to true? Or is it always false?"
+  },
+  {
+    "contest": "Nibiru 2024-11",
+    "id": 75,
+    "title": "effectiveGasPriceDec uses hardcoded param, not user-specific",
+    "pattern": "WRONG_INPUT",
+    "root_cause": "Gas price calculation uses global constant instead of per-user value",
+    "detection": "Check: does this calculation use the RIGHT input? User-specific vs global?"
+  }
+]

@@ -1,0 +1,84 @@
+{
+  "total": 503,
+  "accepted": 184,
+  "rejected": 319,
+  "acceptance_rate": "36.6%",
+  "pattern_rates": {
+    "ACCESS_CONTROL": {
+      "acc": 22,
+      "total": 58,
+      "rate": "37.9%"
+    },
+    "DOS/LIVENESS": {
+      "acc": 5,
+      "total": 21,
+      "rate": "23.8%"
+    },
+    "FEE_ON_TRANSFER": {
+      "acc": 1,
+      "total": 5,
+      "rate": "20.0%"
+    },
+    "FLASH_LOAN": {
+      "acc": 3,
+      "total": 7,
+      "rate": "42.9%"
+    },
+    "FRONT_RUNNING/MEV": {
+      "acc": 6,
+      "total": 17,
+      "rate": "35.3%"
+    },
+    "GAS_ISSUE": {
+      "acc": 2,
+      "total": 3,
+      "rate": "66.7%"
+    },
+    "INTEREST/REWARD": {
+      "acc": 5,
+      "total": 22,
+      "rate": "22.7%"
+    },
+    "LIQUIDATION": {
+      "acc": 5,
+      "total": 37,
+      "rate": "13.5%"
+    },
+    "MISSING_REFUND": {
+      "acc": 5,
+      "total": 10,
+      "rate": "50.0%"
+    },
+    "MISSING_SLIPPAGE": {
+      "acc": 2,
+      "total": 6,
+      "rate": "33.3%"
+    },
+    "ORACLE_MANIPULATION": {
+      "acc": 32,
+      "total": 86,
+      "rate": "37.2%"
+    },
+    "OTHER": {
+      "acc": 17,
+      "total": 54,
+      "rate": "31.5%"
+    },
+    "OVERFLOW/CORRUPTION": {
+      "acc": 48,
+      "total": 91,
+      "rate": "52.7%"
+    },
+    "REENTRANCY": {
+      "acc": 16,
+      "total": 53,
+      "rate": "30.2%"
+    },
+    "ROUNDING/PRECISION": {
+      "acc": 10,
+      "total": 21,
+      "rate": "47.6%"
+    }
+  },
+  "contests": 14
+}

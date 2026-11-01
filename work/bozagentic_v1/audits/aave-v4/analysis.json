@@ -1,0 +1,43 @@
+{
+  "name": "PoolInstance",
+  "compiler": "v0.8.27+commit.40a35a09",
+  "functions": [
+    "initialize",
+    "getRevision"
+  ],
+  "modifiers": [],
+  "events": [],
+  "errors": [],
+  "patterns": {
+    "require(": 1,
+    "revert ": 0,
+    "if.*else": 0,
+    "unchecked": 0,
+    "assembly": 0,
+    "delegatecall": 0,
+    "selfdestruct": 0,
+    "tx.origin": 0,
+    "block.timestamp": 0,
+    "block.number": 0,
+    "msg.sender": 0,
+    "msg.value": 0,
+    "safeTransfer": 0,
+    "IERC20": 0,
+    "ReentrancyGuard": 0,
+    "onlyAdmin": 0
+  },
+  "admin_funcs": [],
+  "dangerous_public": [],
+  "invariants": [
+    "Total supply of aTokens == total deposits + accrued interest",
+    "Total variable debt == sum of all variable borrows + accrued interest",
+    "Health factor >= 1 for all non-liquidatable positions",
+    "Reserve liquidity == total deposits - total borrows",
+    "Utilization rate == total borrows / total deposits (0-100%)",
+    "Liquidation bonus applied correctly (5-10%)",
+    "Interest rate model: borrowRate >= supplyRate always",
+    "eMode LTV > normal LTV only for correlated assets",
+    "Flash loan premium == 0.05% (5 bps)",
+    "No negative balances after any operation"
+  ]
+}

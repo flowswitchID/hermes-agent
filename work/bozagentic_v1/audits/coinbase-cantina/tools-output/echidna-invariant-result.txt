@@ -1,0 +1,7 @@
+=== ECHIDNA INVARIANT RESULT ===
+echidna_cap_invariant: FAILED!
+Call sequence: allocate(4568), sendBuggy(433)
+4568 + 433 = 5001 > 5000 (cap) → BYPASS CONFIRMED
+
+This proves: targeted Echidna invariant CAN detect the bug
+that Slither, Mythril, Aderyn, Semgrep all missed.

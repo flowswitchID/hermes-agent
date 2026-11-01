@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "9Router High-Performance Multi-Agent AI Gateway",
+    "output": "9router-architecture.html",
+    "quality_profile": "showcase",
+    "views": [
+      { "id": "agent-flow", "label": "AI Agent Request Pipeline", "focus": ["hermes", "gateway", "th_pool", "cb_pool", "sqlite"], "note": "Primary low-latency LLM inference path with local SQLite caching." },
+      { "id": "relay-routing", "label": "Edge Anycast Acceleration", "focus": ["gateway", "cf_edge", "th_pool"], "note": "Zero-hop Anycast routing directly to upstream provider origins." }
+    ]
+  },
+  "components": [
+    { "id": "hermes", "type": "external", "label": "BOZ-AGENT (Hermes)", "sublabel": "Autonomous Core", "pos": [50, 280], "size": [150, 64], "tag": "Autonomous Engine" },
+    { "id": "gateway", "type": "backend", "label": "9Router Gateway", "sublabel": "localhost:20128", "pos": [280, 280], "size": [160, 64], "tag": "Proxy Router" },
+    { "id": "sqlite", "type": "database", "label": "Local SQLite DB", "sublabel": "~/.9router/db/data.sqlite", "pos": [280, 120], "size": [160, 60] },
+    { "id": "th_pool", "type": "cloud", "label": "Token Harbor Pool", "sublabel": "174 API Keys (th/*)", "pos": [530, 200], "size": [170, 64], "tag": "21 LLM Models" },
+    { "id": "cb_pool", "type": "cloud", "label": "CodeBuddy Global Pool", "sublabel": "22 OAuth Accounts (cbai/*)", "pos": [530, 360], "size": [170, 64], "tag": "GLM & Kimi" },
+    { "id": "cf_edge", "type": "cloud", "label": "Cloudflare Anycast", "sublabel": "Global Edge Relay", "pos": [780, 200], "size": [160, 60] },
+    { "id": "tencent", "type": "cloud", "label": "Tencent Cloud Backend", "sublabel": "CodeBuddy OIDC", "pos": [780, 360], "size": [160, 60] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "Local Machine (macOS Host)", "wraps": ["hermes", "gateway", "sqlite"] },
+    { "kind": "security-group", "label": "External AI Provider Cluster", "wraps": ["th_pool", "cb_pool", "cf_edge", "tencent"] }
+  ],
+  "connections": [
+    { "id": "hermes-to-gw", "from": "hermes", "to": "gateway", "label": "HTTP :20128", "variant": "emphasis" },
+    { "id": "gw-to-db", "from": "gateway", "to": "sqlite", "label": "Read/Write State", "fromSide": "top", "toSide": "bottom" },
+    { "id": "gw-to-th", "from": "gateway", "to": "th_pool", "label": "Round-Robin Dispatch" },
+    { "id": "gw-to-cb", "from": "gateway", "to": "cb_pool", "label": "JWT Load Balancing" },
+    { "id": "th-to-cf", "from": "th_pool", "to": "cf_edge", "label": "Zero-Hop HTTPS" },
+    { "id": "cb-to-tc", "from": "cb_pool", "to": "tencent", "label": "Copilot API" }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "Local Layer", "items": ["Hermes Agent autonomous executor", "9Router local port 20128 with multi-tier fallback"] },
+    { "dot": "emerald", "title": "Provider Pools", "items": ["174 Token Harbor accounts load balanced", "22 CodeBuddy Pro Trial accounts (~2027 Expiry)"] },
+    { "dot": "rose", "title": "Network Backbone", "items": ["Direct Zero-Hop edge routing (382ms TTFB)", "Full offline JWT credential validation"] }
+  ]
+}

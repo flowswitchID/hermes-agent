@@ -1,0 +1,76 @@
+Summary
+
+When I was tracing through CashbackRewards._validatePaymentReward I noticed
+the per-payment maxRewardBps cap is enforced differently depending on which
+reward operation you're calling. ALLOCATE counts both distributed and
+allocated amounts, but SEND and DISTRIBUTE only count distributed — the
+allocated bucket is just ignored. So a campaign manager can allocate up to
+the cap, then send up to the cap again, and end up with 2x the intended
+maximum reward.
+
+Vulnerable Code
+
+File: src/hooks/CashbackRewards.sol, around line 325
+
+  uint120 previouslyRewardedAmount = rewards[campaign][paymentInfoHash].distributed;
+
+  if (operation == RewardOperation.ALLOCATE) {
+      paymentAmount += capturableAmount;
+      previouslyRewardedAmount += rewards[campaign][paymentInfoHash].allocated;
+  }
+
+The allocated amount only gets added to previouslyRewardedAmount when the
+operation is ALLOCATE. For SEND and DISTRIBUTE it never gets looked at, which
+is the whole problem.
+
+Reproduction
+
+Setup: a payment worth 100,000 tokens with maxRewardBps = 5000 (50%), so the
+intended per-payment cap is 50,000.
+
+Step 1 — call allocate(50,000):
+    previouslyRewarded = distributed(0) + allocated(0) = 0
+    total = 0 + 50,000 = 50,000 <= 50,000 → passes
+    state after: allocated = 50,000, distributed = 0
+
+Step 2 — call send(50,000):
+    previouslyRewarded = distributed(0) = 0   ← allocated(50,000) ignored
+    total = 0 + 50,000 = 50,000 <= 50,000 → passes
+    state after: allocated = 50,000, distributed = 50,000
+
+Total paid out: 100,000 against a 50,000 cap. Bypassed by 2x.
+
+DISTRIBUTE has the same bug — same function, same logic path.
+
+Impact
+
+maxRewardBps is the safety cap a campaign owner sets to bound their reward
+exposure. With this bug it doesn't actually bound anything — a malicious or
+compromised campaign manager can drain up to 2x the intended max per
+payment from campaign funds. Not a flash-loan-once-and-leave thing either,
+the bypass works every time the manager runs allocate followed by send or
+distribute.
+
+Proof of Concept
+
+Foundry tests, 6 proofs all passing:
+  test_proof1_allocate_passes_at_cap
+  test_proof2_send_ignores_allocated
+  test_proof3_total_exceeds_cap — 10000 > 5000 cap
+  test_proof4_correct_impl_prevents — fix would catch it
+  test_proof5_distribute_also_ignores_allocated
+  test_proof6_max_exploit — 2x bypass ratio
+
+I also ran this through Z3 and got SAT, so the bypass is mathematically
+provable, not just an empirical test artifact.
+
+Recommended Fix
+
+Always count both buckets when computing previouslyRewarded:
+
+  uint120 previouslyRewardedAmount =
+      rewards[campaign][paymentInfoHash].distributed
+    + rewards[campaign][paymentInfoHash].allocated;
+
+And drop the redundant `previouslyRewardedAmount += ...allocated` inside
+the ALLOCATE branch since it's now done unconditionally.

@@ -1,0 +1,4 @@
+testMode: assertion
+testLimit: 50000
+deployer: "0x10000"
+sender: ["0x10000"]

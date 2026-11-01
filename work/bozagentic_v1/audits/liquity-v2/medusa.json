@@ -1,0 +1,26 @@
+{
+  "fuzzing": {
+    "workers": 4,
+    "workerResetLimit": 50,
+    "timeout": 0,
+    "testLimit": 20000,
+    "callSequenceLength": 100,
+    "corpusDirectory": "",
+    "coverageEnabled": true,
+    "targetContracts": ["EchidnaHarness"],
+    "targetContractsBalances": [],
+    "constructorArgs": {},
+    "deployerAddress": "0x30000",
+    "senderAddresses": ["0x10000", "0x20000", "0x30000"],
+    "testMode": "property"
+  },
+  "compilation": {
+    "platform": "crytic-compile",
+    "platformConfig": {
+      "target": ".",
+      "solcVersion": "",
+      "exportDirectory": "",
+      "args": []
+    }
+  }
+}

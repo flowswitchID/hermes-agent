@@ -1,0 +1,20 @@
+=== Z3 PROOF: maxRewardBps bypass ===
+SAT — BYPASS CONFIRMED
+  paymentAmount = 20000
+  maxRewardBps = 1
+  maxAllowed = 2
+  allocated = 1
+  distributed = 0
+  allocate_amount = 1
+  send_amount = 2
+  total_rewarded = 3
+  cap = 2
+
+=== Z3 PROOF: Correct impl prevents bypass ===
+UNSAT — correct impl PREVENTS bypass ✅
+
+=== CONCRETE EXAMPLE ===
+paymentAmount = 10000, maxRewardBps = 5000, cap = 5000
+TX1: allocate(5000) → prev = 0+0 = 0, total = 0+5000 = 5000 ≤ 5000 ✅
+TX2: send(5000) → prev = 0 (ignores allocated!), total = 0+5000 = 5000 ≤ 5000 ✅
+TOTAL rewarded = 5000 + 5000 = 10000 > 5000 ← BYPASS!

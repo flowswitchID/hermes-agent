@@ -1,0 +1,104 @@
+{
+  "FLASH_LOAN": {
+    "look_for": "Any state readable in 1 tx that affects pricing/voting/access",
+    "red_flags": [
+      "pool.getReserves()",
+      "balanceOf(address(this))",
+      "slot0()",
+      "votingPower = balanceOf"
+    ],
+    "defense": "TWAP, snapshots, accumulate over time, virtual shares",
+    "tool": "Echidna: flash loan invariant (state before == state after flash loan tx)"
+  },
+  "ORACLE_MANIPULATION": {
+    "look_for": "Oracle source that can change within 1 tx",
+    "red_flags": [
+      "Uniswap spot price",
+      "pool reserves as price",
+      "single source oracle",
+      "no staleness check"
+    ],
+    "defense": "Chainlink + staleness, TWAP, multiple sources",
+    "tool": "Z3: prove price change bounded by X% per block"
+  },
+  "REENTRANCY": {
+    "look_for": "External call before state update, cross-function state reads",
+    "red_flags": [
+      ".call{value}",
+      "callback before state write",
+      "read state in function B that A should update"
+    ],
+    "defense": "CEI, reentrancy guard, transient storage locks",
+    "tool": "Slither reentrancy-eth + custom cross-function detector"
+  },
+  "GOVERNANCE_ATTACK": {
+    "look_for": "Voting power read at vote time (not snapshot)",
+    "red_flags": [
+      "balanceOf used for votes",
+      "no snapshot block",
+      "no timelock on execution"
+    ],
+    "defense": "Snapshot at proposal creation, timelock, veToken",
+    "tool": "Manual: trace voting power source to balanceOf"
+  },
+  "KEY/ACCESS_COMPROMISE": {
+    "look_for": "Low multisig threshold, single admin, no timelock",
+    "red_flags": [
+      "2/5 multisig",
+      "owner can drain",
+      "no timelock on critical functions"
+    ],
+    "defense": "High threshold, timelocks, multi-sig for admin",
+    "tool": "Access control matrix (already built)"
+  },
+  "ROUNDING_ERROR": {
+    "look_for": "Inconsistent rounding direction, accumulated dust",
+    "red_flags": [
+      "mulDivDown where mulDivUp needed",
+      "toAssetsDown for withdrawal",
+      "no virtual shares"
+    ],
+    "defense": "Consistent rounding, virtual shares/offsets",
+    "tool": "Echidna: token conservation invariant (already built!)"
+  },
+  "SHARE_INFLATION": {
+    "look_for": "totalAssets reads balanceOf(this) instead of internal accounting",
+    "red_flags": [
+      "balanceOf(address(this)) in totalAssets",
+      "no virtual shares",
+      "no minimum deposit"
+    ],
+    "defense": "Virtual shares (OZ method), internal accounting, dead shares",
+    "tool": "Custom Slither: check totalAssets source"
+  },
+  "LIQUIDATION_BUG": {
+    "look_for": "Position-changing function without health check",
+    "red_flags": [
+      "debt++ without isHealthy",
+      "collateral-- without isHealthy",
+      "donateToReserves"
+    ],
+    "defense": "Health check after EVERY position change",
+    "tool": "Custom Slither: MissingHealthCheck detector (already built!)"
+  },
+  "SIGNATURE_BUG": {
+    "look_for": "Missing/incomplete signature verification",
+    "red_flags": [
+      "ecrecover without nonce",
+      "no chainId in domain",
+      "no deadline",
+      "skip verification path"
+    ],
+    "defense": "EIP-712, nonce, chainId, deadline",
+    "tool": "Manual: trace all ecrecover paths"
+  },
+  "CALCULATION_ERROR": {
+    "look_for": "Wrong formula, wrong multiplier/divisor",
+    "red_flags": [
+      "reward = amount * multiplier (wrong multiplier)",
+      "fee calculation differs between functions"
+    ],
+    "defense": "Unit tests with known values, Z3 formal verification",
+    "tool": "Z3: prove formula bounds. Custom Slither: FeeCapInconsistency (already built!)"
+  }
+}

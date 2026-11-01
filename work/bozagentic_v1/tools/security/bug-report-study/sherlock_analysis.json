@@ -1,0 +1,50 @@
+{
+  "total": 4153,
+  "high": 29,
+  "medium": 13,
+  "contests": {
+    "2025-02-yieldoor": {
+      "total": 756,
+      "high": 1,
+      "medium": 4
+    },
+    "2025-03-symm-io-stacking": {
+      "total": 749,
+      "high": 1,
+      "medium": 0
+    },
+    "2025-04-burve": {
+      "total": 510,
+      "high": 14,
+      "medium": 2
+    },
+    "2025-05-dodo-cross-chain-dex": {
+      "total": 938,
+      "high": 0,
+      "medium": 0
+    },
+    "2025-05-lend-audit-contest": {
+      "total": 1034,
+      "high": 12,
+      "medium": 6
+    },
+    "2025-05-yearn-ybold": {
+      "total": 166,
+      "high": 1,
+      "medium": 1
+    }
+  },
+  "patterns": {
+    "LIQUIDATION": 10,
+    "INTEREST/REWARD": 4,
+    "OTHER": 10,
+    "OVERFLOW/CORRUPTION": 3,
+    "ACCESS_CONTROL": 1,
+    "INVARIANT_BREAK": 1,
+    "REENTRANCY": 7,
+    "DOS/LIVENESS": 1,
+    "ROUNDING/PRECISION": 3,
+    "BRIDGE/CROSS_CHAIN": 1,
+    "ORACLE_MANIPULATION": 1
+  }
+}

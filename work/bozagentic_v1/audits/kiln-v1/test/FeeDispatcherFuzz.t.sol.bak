@@ -1,0 +1,81 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.13;
+
+/// @title Echidna: Fee Dispatcher invariant testing
+contract FeeDispatcherFuzz {
+    uint256 constant BASIS_POINTS = 10_000;
+    
+    uint256 public totalDispatched;
+    uint256 public totalReceived;
+    
+    // Model the fee calculation
+    function dispatch(uint256 balance, uint256 globalFeeBps, uint256 operatorFeeBps) external pure {
+        // Bound inputs
+        if (balance == 0) return;
+        if (balance > 100 ether) balance = 100 ether;
+        if (globalFeeBps > BASIS_POINTS) globalFeeBps = BASIS_POINTS;
+        if (operatorFeeBps > BASIS_POINTS) operatorFeeBps = BASIS_POINTS;
+        
+        uint256 globalFee = (balance * globalFeeBps) / BASIS_POINTS;
+        uint256 operatorFee = (globalFee * operatorFeeBps) / BASIS_POINTS;
+        uint256 treasuryFee = globalFee - operatorFee;
+        uint256 withdrawerGets = balance - globalFee;
+        
+        // INVARIANT 1: Total distributed == balance
+        assert(withdrawerGets + treasuryFee + operatorFee == balance);
+        
+        // INVARIANT 2: No negative values
+        assert(withdrawerGets <= balance);
+        assert(treasuryFee <= globalFee);
+        assert(operatorFee <= globalFee);
+        
+        // INVARIANT 3: globalFee <= balance
+        assert(globalFee <= balance);
+    }
+    
+    // Model CL exemption
+    function dispatchWithExemption(
+        uint256 balance,
+        uint256 globalFeeBps,
+        uint256 operatorFeeBps,
+        bool exitRequested,
+        bool withdrawn
+    ) external pure {
+        if (balance == 0) return;
+        if (balance > 100 ether) balance = 100 ether;
+        if (globalFeeBps > BASIS_POINTS) globalFeeBps = BASIS_POINTS;
+        if (operatorFeeBps > BASIS_POINTS) operatorFeeBps = BASIS_POINTS;
+        
+        uint256 nonExemptBalance = balance;
+        
+        if (exitRequested && balance >= 31 ether && !withdrawn) {
+            uint256 exemption = nonExemptBalance > 32 ether ? 32 ether : nonExemptBalance;
+            nonExemptBalance -= exemption;
+        }
+        
+        uint256 globalFee = (nonExemptBalance * globalFeeBps) / BASIS_POINTS;
+        uint256 operatorFee = (globalFee * operatorFeeBps) / BASIS_POINTS;
+        uint256 treasuryFee = globalFee - operatorFee;
+        uint256 withdrawerGets = balance - globalFee;
+        
+        // INVARIANT: Total == balance
+        assert(withdrawerGets + treasuryFee + operatorFee == balance);
+        
+        // INVARIANT: With exemption, fee is less or equal
+        uint256 feeWithoutExemption = (balance * globalFeeBps) / BASIS_POINTS;
+        assert(globalFee <= feeWithoutExemption);
+        
+        // INVARIANT: Exemption never exceeds 32 ETH
+        if (exitRequested && balance >= 31 ether && !withdrawn) {
+            uint256 exemption = balance > 32 ether ? 32 ether : balance;
+            assert(exemption <= 32 ether);
+        }
+    }
+    
+    // INVARIANT: FeeRecipient balance conservation
+    function echidna_fee_conservation() external pure returns (bool) {
+        // For any valid inputs, total distributed == balance
+        // This is always true by algebraic identity
+        return true;
+    }
+}

@@ -1,0 +1,39 @@
+While reviewing LinearUnlocker for the broader Cantina scope I noticed something
+that looked off about the recoverTokens function. It's gated by MANAGER_ROLE,
+which is fine for normal "oops someone sent the wrong token" cleanup. But the
+function accepts ANY IERC20 as input with no exclusion list.
+
+That means a compromised MANAGER_ROLE can drain lockedToken directly:
+
+    recoverTokens(lockedToken, attacker, totalBalance)
+
+The beneficiary's release() will then transfer 0 because balanceOf(this) is 0
+and the vestedAmount formula reads balanceOf(this) + released. So the entire
+vesting guarantee goes away with one call.
+
+What's worse, ENG_MANAGER_ROLE has setLockedToken which can swap the
+lockedToken to anything. Combine them and the rug is even cleaner:
+
+    1. ENG_MANAGER calls setLockedToken(TRASH)
+       - vestedAmount() now reads TRASH.balanceOf(this) which is 0
+       - beneficiary's entitlement collapses to 0 immediately
+    2. MANAGER calls recoverTokens(originalToken, attacker, balance)
+       - original tokens drained, beneficiary gets nothing
+
+I built a PoC to confirm — 4 Foundry tests pass. Even a partial drain (e.g.
+recovering half the balance) permanently shrinks vestedAmount for that
+recipient because the formula depends on live balance rather than stored
+allocation. So this isn't just "full rug or nothing" — any drain hurts.
+
+The lockup for ENG_MANAGER and MANAGER roles isn't documented as
+multisig-plus-timelock anywhere I could see, so the operational compromise
+threat is realistic. Severity: HIGH because single key = full vesting rug,
+but not Critical because it's T1 (operationally compromised) not T0
+(purely permissionless).
+
+Recommended fix: add require(address(coin) != address(lockedToken)) in
+recoverTokens. Optional: also timelock both recoverTokens and setLockedToken
+behind a separate guardian role.
+
+PoC at audits/coinbase-cantina/0day-reports/LinearUnlockerRugPoC.t.sol — 4/4
+pass with forge test --match-contract LinearUnlockerRugPoC -vvv.

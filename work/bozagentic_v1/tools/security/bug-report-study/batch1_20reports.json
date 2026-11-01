@@ -1,0 +1,162 @@
+[
+  {
+    "id": 1,
+    "protocol": "Euler Finance",
+    "severity": "CRITICAL",
+    "loss": "$197M",
+    "bug": "Donation to reserves bypasses health check",
+    "pattern": "Protocol function changes state without health check, enabling self-liquidation"
+  },
+  {
+    "id": 2,
+    "protocol": "Beanstalk",
+    "severity": "CRITICAL",
+    "loss": "$182M",
+    "bug": "Flash loan governance attack",
+    "pattern": "Governance voting power not snapshotted \u2014 flash loan to acquire votes"
+  },
+  {
+    "id": 3,
+    "protocol": "KyberSwap",
+    "severity": "CRITICAL",
+    "loss": "$48M",
+    "bug": "Tick manipulation + double liquidity counting",
+    "pattern": "Reentrancy in tick update allows liquidity counted twice"
+  },
+  {
+    "id": 4,
+    "protocol": "Aave",
+    "severity": "HIGH",
+    "loss": "$27.78M",
+    "bug": "Oracle configuration mismatch",
+    "pattern": "Wrong oracle feed configured, price discrepancy exploitable"
+  },
+  {
+    "id": 5,
+    "protocol": "Lien Finance",
+    "severity": "HIGH",
+    "loss": "$542K",
+    "bug": "Missing multiset integrity check",
+    "pattern": "Array elements not checked for duplicates"
+  },
+  {
+    "id": 6,
+    "protocol": "Morpho Blue",
+    "severity": "MEDIUM",
+    "loss": "bounty",
+    "bug": "Inflation attack on first depositor",
+    "pattern": "ERC4626 first depositor inflates share price"
+  },
+  {
+    "id": 7,
+    "protocol": "Curve",
+    "severity": "CRITICAL",
+    "loss": "$73M",
+    "bug": "Vyper compiler reentrancy lock bug",
+    "pattern": "Compiler bug: reentrancy lock not properly set"
+  },
+  {
+    "id": 8,
+    "protocol": "Multichain",
+    "severity": "CRITICAL",
+    "loss": "$1.3B",
+    "bug": "MPC key compromise + no on-chain verification",
+    "pattern": "Bridge relies on off-chain signatures without on-chain validation"
+  },
+  {
+    "id": 9,
+    "protocol": "Wormhole",
+    "severity": "CRITICAL",
+    "loss": "$320M",
+    "bug": "Missing signature verification on Solana",
+    "pattern": "Guardian signature verification skipped for specific path"
+  },
+  {
+    "id": 10,
+    "protocol": "Ronin Bridge",
+    "severity": "CRITICAL",
+    "loss": "$625M",
+    "bug": "Validator key compromise (5/9 multisig)",
+    "pattern": "Social engineering + stale validator set"
+  },
+  {
+    "id": 11,
+    "protocol": "Cream Finance",
+    "severity": "CRITICAL",
+    "loss": "$130M",
+    "bug": "Oracle manipulation via flash loan",
+    "pattern": "Flash loan to manipulate Uniswap TWAP oracle"
+  },
+  {
+    "id": 12,
+    "protocol": "Harmony Horizon",
+    "severity": "CRITICAL",
+    "loss": "$100M",
+    "bug": "2-of-5 multisig compromise",
+    "pattern": "Low multisig threshold + key theft"
+  },
+  {
+    "id": 13,
+    "protocol": "bZx",
+    "severity": "HIGH",
+    "loss": "$8M",
+    "bug": "Flash loan + oracle + short selling",
+    "pattern": "Flash loan to manipulate Uniswap price, profit from leveraged short"
+  },
+  {
+    "id": 14,
+    "protocol": "Pickle Finance",
+    "severity": "CRITICAL",
+    "loss": "$20M",
+    "bug": "Malicious strategy + wrong oracle",
+    "pattern": "Strategy used controller-settable oracle, attacker manipulated price"
+  },
+  {
+    "id": 15,
+    "protocol": "Badger DAO",
+    "severity": "CRITICAL",
+    "loss": "$120M",
+    "bug": "Injected malicious script in frontend",
+    "pattern": "Frontend compromise \u2014 injected approval requests"
+  },
+  {
+    "id": 16,
+    "protocol": "dYdX",
+    "severity": "MEDIUM",
+    "loss": "bounty",
+    "bug": "Solo margin withdrawal rounding",
+    "pattern": "Rounding in withdrawal allows extracting 1 extra wei per op"
+  },
+  {
+    "id": 17,
+    "protocol": "MakerDAO",
+    "severity": "HIGH",
+    "loss": "$8.3M",
+    "bug": "Zero-bid liquidation auction",
+    "pattern": "Flash loan to manipulate auction during low-liquidity"
+  },
+  {
+    "id": 18,
+    "protocol": "Compound",
+    "severity": "HIGH",
+    "loss": "$80M",
+    "bug": "COMP distribution calculation error",
+    "pattern": "Wrong multiplier in reward formula, 100x over-distribution"
+  },
+  {
+    "id": 19,
+    "protocol": "Yearn Finance",
+    "severity": "CRITICAL",
+    "loss": "$11M",
+    "bug": "Vault price manipulation via donation",
+    "pattern": "Direct token transfer inflates price per share"
+  },
+  {
+    "id": 20,
+    "protocol": "Fei Protocol",
+    "severity": "CRITICAL",
+    "loss": "$80M",
+    "bug": "Flash loan + oracle on Uniswap PCV",
+    "pattern": "Flash loan to manipulate Uniswap pool, exploit bonding curve"
+  }
+]

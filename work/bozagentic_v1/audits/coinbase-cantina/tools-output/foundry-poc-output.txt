@@ -1,0 +1,39 @@
+No files changed, compilation skipped
+
+Ran 6 tests for test/CashbackMaxRewardBypassPoC.t.sol:CashbackMaxRewardBypassPoC
+[PASS] test_proof1_allocate_passes_at_cap() (gas: 4196)
+Logs:
+  After allocate: allocated: 5000
+  After allocate: distributed: 0
+
+[PASS] test_proof2_send_ignores_allocated() (gas: 4138)
+Logs:
+  SEND previouslyRewarded (BUG: ignores allocated): 0
+  SEND total: 5000
+
+[PASS] test_proof3_total_exceeds_cap() (gas: 6118)
+Logs:
+  maxAllowed (cap): 5000
+  totalRewarded: 10000
+  EXCESS over cap: 5000
+
+[PASS] test_proof4_correct_impl_prevents() (gas: 4129)
+Logs:
+  Correct previouslyRewarded: 5000
+  Correct total (would revert): 10000
+
+[PASS] test_proof5_distribute_also_ignores_allocated() (gas: 2308)
+Logs:
+  DISTRIBUTE also ignores allocated: 0
+
+[PASS] test_proof6_max_exploit() (gas: 9857)
+Logs:
+  Payment amount: 100000
+  Max allowed (50%): 50000
+  Total rewarded: 100000
+  Excess: 50000
+  Bypass ratio (x): 2
+
+Suite result: ok. 6 passed; 0 failed; 0 skipped; finished in 4.44ms (938.65µs CPU time)
+
+Ran 1 test suite in 12.48ms (4.44ms CPU time): 6 tests passed, 0 failed, 0 skipped (6 total tests)

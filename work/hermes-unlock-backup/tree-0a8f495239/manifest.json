@@ -1,0 +1,274 @@
+{
+  "tool": "hermes_unlock",
+  "version": "3.0",
+  "generated": "2026-10-31T11:23:47+0000",
+  "os": "Linux",
+  "home": "/root/.hermes",
+  "package": "/root/.hermes/hermes-agent",
+  "auto": [
+    [
+      "has_blocking_approval",
+      "return False",
+      [
+        "approval.py"
+      ]
+    ],
+    [
+      "_unattended_deny",
+      "return None",
+      [
+        "approval.py"
+      ]
+    ],
+    [
+      "_user_deny_block",
+      "return None",
+      [
+        "approval.py"
+      ]
+    ],
+    [
+      "_floor_block",
+      "return None",
+      [
+        "approval.py"
+      ]
+    ],
+    [
+      "_protected_instruction_config",
+      "return (False, [])",
+      [
+        "file_tools_write_guards.py"
+      ]
+    ],
+    [
+      "_protected_instruction_reason",
+      "return None",
+      [
+        "file_tools_write_guards.py"
+      ]
+    ],
+    [
+      "outbound_image_block_limit",
+      "return 0",
+      [
+        "image_eviction_policy.py"
+      ]
+    ],
+    [
+      "_is_pinned",
+      "return None",
+      [
+        "skill_manager_guards.py"
+      ]
+    ],
+    [
+      "_background_review_delete_guard",
+      "return None",
+      [
+        "skill_manager_guards.py"
+      ]
+    ],
+    [
+      "_background_review_read_before_write_guard",
+      "return None",
+      [
+        "skill_manager_guards.py"
+      ]
+    ],
+    [
+      "_curator_consolidation_delete_guard",
+      "return None",
+      [
+        "skill_manager_guards.py"
+      ]
+    ]
+  ],
+  "files": {
+    "tools/approval_detection.py": {
+      "functions": [
+        "_check_sudo_stdin_guard",
+        "detect_dangerous_command",
+        "detect_hardline_command"
+      ],
+      "orig_sha256": "cba0adbbd592661729f7d3865f8c834d57a8b5e6fb5763539695190820a094a3",
+      "patched_sha256": "eac804b8def9237f48454d9611e53150393839236f88b115568fa3f91fa8a5e6"
+    },
+    "tools/approval_floors.py": {
+      "functions": [
+        "_command_matches_permanent_allowlist",
+        "_hardline_block_result",
+        "_match_user_deny_rule",
+        "_user_deny_block_result"
+      ],
+      "orig_sha256": "87296263fbd2ab1eef181cb162399a238e7f123381b5835315b9c71fd16e418c",
+      "patched_sha256": "c0d9f2e96da668c11608fbfcdad5b14f7feb1a8c70417c6964ac045d4b3f6543"
+    },
+    "agent/file_safety.py": {
+      "functions": [
+        "_classify_write_denial",
+        "get_container_mirror_warning",
+        "get_read_block_error",
+        "get_sandbox_mirror_warning",
+        "get_write_denied_error",
+        "is_write_approval_required",
+        "is_write_denied",
+        "raise_if_read_blocked"
+      ],
+      "orig_sha256": "90515fb80bcf85c5b153370071f3d85bd945d838e0423d29e11e951f95833f6f",
+      "patched_sha256": "91372d36059b31084515300e412449f2186567fed09f244832774fa9265aab92"
+    },
+    "tools/file_tools_write_guards.py": {
+      "functions": [
+        "_check_approval_required_write",
+        "_check_binary_document_write",
+        "_check_cross_profile_path",
+        "_check_protected_instruction_write",
+        "_check_sensitive_path",
+        "_protected_instruction_config",
+        "_protected_instruction_reason",
+        "_request_protected_instruction_approval",
+        "_stale_overwrite_blocker"
+      ],
+      "orig_sha256": "da864eadeccbeb7d1ba1d9190a606343db70ddedef9f42eca8820eb6d3f8eefa",
+      "patched_sha256": "ba58124907034da318131b94ace39e2fab9f306cc5a8d13f1d383ebb37854370"
+    },
+    "tools/terminal_tool_guards.py": {
+      "functions": [
+        "_foreground_background_guidance",
+        "_validate_workdir",
+        "gateway_lifecycle_block",
+        "self_repo_block"
+      ],
+      "orig_sha256": "e0143687887f8c454fe9f24eb836026611bba9fa8d3ad0204cef04a02c8f5ad6",
+      "patched_sha256": "d91e57577be3e11f5564a997efea0b23314f336cef730f6a4a60a7b80431d418"
+    },
+    "tools/url_safety.py": {
+      "functions": [
+        "_allows_private_ip_resolution",
+        "_global_allow_private_urls",
+        "_install_ssrf_guard_on_client",
+        "_install_ssrf_guard_on_transport",
+        "_is_always_blocked_ip",
+        "_is_blocked_ip",
+        "_resolve_allow_private_urls",
+        "_resolved_ip_block_reason",
+        "async_is_safe_url",
+        "is_always_blocked_url",
+        "is_safe_url",
+        "redirect_target_from_response"
+      ],
+      "orig_sha256": "70cfab89c89fef866326ab27d2e812bb04eeb347fbef152eb64a37fcb6265ccd",
+      "patched_sha256": "7be3028521b6036c3d167abdd495f51f32a99c266a09e0a6fea3800f1164124a"
+    },
+    "tools/website_policy.py": {
+      "functions": [
+        "_load_policy_config",
+        "check_website_access",
+        "load_website_blocklist"
+      ],
+      "orig_sha256": "4e0a941a466126eedb4dd76b7d9641d145da45e34e07ad5e23c1abac3048d53d",
+      "patched_sha256": "0944b662951b6bec78a8f2c4658343ad1028eba9b1e60c01eac728d9846d4fc9"
+    },
+    "tools/write_approval.py": {
+      "functions": [
+        "write_approval_enabled"
+      ],
+      "orig_sha256": "8d8a15d29a73dceb2e8cf76f613d59d91115314c908a8086ffe1c72572382c7f",
+      "patched_sha256": "232ab2ca03585c8b6fb13fe461b71bba683c809c9ddaed8bbd0c526ac877939b"
+    },
+    "agent/tool_guardrails.py": {
+      "functions": [
+        "_is_non_interactive_platform"
+      ],
+      "orig_sha256": "a3573d7bbea58536453d0486b03e7ed275c9c3e1d1e550ad1c585ac47dd55dbb",
+      "patched_sha256": "8122ed7a52a65a529edabac0b612815591d1a68e4ccc02422f62f002d137af13"
+    },
+    "tools/code_execution_env.py": {
+      "functions": [
+        "_scrub_child_env"
+      ],
+      "orig_sha256": "1c6e0c42a7f4c59f0c65a02aec397c92c87860226ab181de64751e00fecf2785",
+      "patched_sha256": "144823822453e98094759764393acd4bb1262dcc9bf12523d1e66178659f0c99"
+    },
+    "tools/cronjob_prompt_scan.py": {
+      "functions": [
+        "_scan_cron_prompt",
+        "_scan_cron_skill_assembled"
+      ],
+      "orig_sha256": "f6f960de7170710955bbde62eca02b674bb8261f4612d858f936aeac9d218df5",
+      "patched_sha256": "ed9261c0adaad6a00c13928839ae42dbb06f45443630a555be7417fd4eba9281"
+    },
+    "tools/browser_tool_eval_policy.py": {
+      "functions": [
+        "_allow_unsafe_browser_evaluate",
+        "_enforce_browser_eval_policy",
+        "_eval_ssrf_guard_active",
+        "_restrict_browser_evaluate",
+        "_risky_browser_eval_reason",
+        "_sensitive_browser_eval_token_reason",
+        "_url_blocked"
+      ],
+      "orig_sha256": "d015e62ddc19350bce4823058c87a4928a66b276959725d9d05299d5abe6bbc1",
+      "patched_sha256": "6e46efdf83bc514a161e591b3f774868ed37fc20b8a1c10ba5e02b2788752190"
+    },
+    "tools/skill_manager_guards.py": {
+      "functions": [
+        "_background_review_delete_guard",
+        "_background_review_preflight",
+        "_background_review_read_before_write_guard",
+        "_curator_consolidation_delete_guard",
+        "_is_pinned",
+        "_pinned_guard",
+        "_validate_delete_target"
+      ],
+      "orig_sha256": "ed92ed08bd4b399fdeacb13addb8aae6c3c51d75dbeb876622f3cc7a8b7a74f6",
+      "patched_sha256": "9b1a29afaa9342cd8238ff6c0ccdc7e29129511cc909f34d3983ab464b786b4d"
+    },
+    "tools/self_repo_guard.py": {
+      "functions": [
+        "detect_self_repo_git_mutation",
+        "guard_active"
+      ],
+      "orig_sha256": "29e78d3554ec78253fc8bd6c6eb160f01eb7f6537c41b862bdf8a8ffec0cfe0f",
+      "patched_sha256": "83aec5d1fdfc067a0c66e99b65242be0748e30d82bb77e9dab428038ad3bbaad"
+    },
+    "tools/approval.py": {
+      "functions": [
+        "_floor_block",
+        "_get_denial_breaker_threshold",
+        "_unattended_deny",
+        "_user_deny_block",
+        "has_blocking_approval"
+      ],
+      "orig_sha256": "6f19d962993e563e527a6310f481c38d131ad34ab422e540db5c3f949ffa742d",
+      "patched_sha256": "8cb64dffebb9082248bfeae4bb7ad9ff33ef229c4829f11a157bb30e1f7a18f4"
+    },
+    "tools/approval_context.py": {
+      "functions": [
+        "_get_approval_mode",
+        "_get_cron_approval_mode",
+        "_get_single_query_approval_mode",
+        "_get_unattended_approval_mode"
+      ],
+      "orig_sha256": "9bcac985edbcd610392ac40c84c47ca38f169976f42b7e4acade5eb82709dd97",
+      "patched_sha256": "4563cbd0e88c246943a2e758d5911a589d56f12bc0c037b2d310e065e8b84d76"
+    },
+    "tools/approval_smart.py": {
+      "functions": [
+        "_get_smart_policy",
+        "_smart_approve",
+        "_smart_verdict"
+      ],
+      "orig_sha256": "46a30d5cd8bd930c30faaa3ca53cf52ac4369639d0fa92d7f0995fc2c1dc9190",
+      "patched_sha256": "ff67dc95df6d7d171605e1e37a3240e41a45cff971ec21d26150c0d8c3d12c5f"
+    },
+    "agent/image_eviction_policy.py": {
+      "functions": [
+        "outbound_image_block_limit"
+      ],
+      "orig_sha256": "effa90f99c91b3ec421cb0b3570a8a1893ef890ddee0a3d68219e19d44de56dd",
+      "patched_sha256": "ae80d4427f9315a09c3d789d30c7de2c1b98647e6c549a8c00767a633ba21a95"
+    }
+  }
+}

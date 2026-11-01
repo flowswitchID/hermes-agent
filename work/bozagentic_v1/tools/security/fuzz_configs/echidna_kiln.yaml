@@ -1,0 +1,14 @@
+# Echidna config for KilnStaking
+testMode: assertion
+testLimit: 100000
+stopOnFail: false
+estimateGas: false
+seqLen: 100
+testDestruction: false
+psender: "0x000000000000000000000000000000000000dEaD"
+prefix: "echidna_"
+corpusDir: "corpus"
+coverage: true
+cryticArgs:
+  - "--solc-remaps"
+  - "@openzeppelin/=lib/openzeppelin-contracts/"

@@ -1,0 +1,999 @@
+No files changed, compilation skipped
+warning[unsafe-typecast]: typecasts that can truncate values should be checked
+   ╭▸ src/MultiTroveGetter.sol:32:24
+   │
+32 │             startIdx = uint256(_startIdx);
+   │                        ━━━━━━━━━━━━━━━━━━
+   │
+   ├ note: consider disabling this lint if you're certain the cast is safe
+   │       
+   │       // casting to 'uint256' is safe because [explain why]
+   │       // forge-lint: disable-next-line(unsafe-typecast)
+   │       
+   │       
+   ╰ help: https://book.getfoundry.sh/reference/forge/forge-lint#unsafe-typecast
+
+warning[erc20-unchecked-transfer]: ERC20 'transfer' and 'transferFrom' calls should check the return value
+   ╭▸ src/Zappers/WETHZapper.sol:71:9
+   │
+71 │         boldToken.transfer(msg.sender, _params.boldAmount);
+   │         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   │
+   ╰ help: https://book.getfoundry.sh/reference/forge/forge-lint#erc20-unchecked-transfer
+
+warning[block-timestamp]: usage of `block.timestamp` in a comparison may be manipulated by validators
+    ╭▸ src/BorrowerOperations.sol:539:13
+    │
+539 │         if (block.timestamp < trove.lastInterestRateAdjTime + INTEREST_RATE_ADJ_COOLDOWN) {
+    │             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    │
+    ╰ help: https://book.getfoundry.sh/reference/forge/forge-lint#block-timestamp
+
+warning[block-timestamp]: usage of `block.timestamp` in a comparison may be manipulated by validators
+    ╭▸ src/PriceFeeds/MainnetPriceFeedBase.sol:116:45
+    │
+116 │         return chainlinkResponse.success && block.timestamp - chainlinkResponse.timestamp < _stalenessThreshold
+    │                                             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    │
+    ╰ help: https://book.getfoundry.sh/reference/forge/forge-lint#block-timestamp
+
+warning[erc20-unchecked-transfer]: ERC20 'transfer' and 'transferFrom' calls should check the return value
+    ╭▸ src/Zappers/WETHZapper.sol:110:9
+    │
+110 │         boldToken.transfer(receiver, _boldAmount);
+    │         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    │
+    ╰ help: https://book.getfoundry.sh/reference/forge/forge-lint#erc20-unchecked-transfer
+
+warning[unsafe-typecast]: typecasts that can truncate values should be checked
+    ╭▸ src/PriceFeeds/MainnetPriceFeedBase.sol:123:16
+    │
+123 │         return uint256(_price) * 10 ** (18 - _decimals);
+    │                ━━━━━━━━━━━━━━━
+    │
+    ├ note: consider disabling this lint if you're certain the cast is safe
+    │       
+    │       // casting to 'uint256' is safe because [explain why]
+    │       // forge-lint: disable-next-line(unsafe-typecast)
+    │       
+    │       
+    ╰ help: https://book.getfoundry.sh/reference/forge/forge-lint#unsafe-typecast
+
+warning[erc20-unchecked-transfer]: ERC20 'transfer' and 'transferFrom' calls should check the return value
+   ╭▸ src/Zappers/GasCompZapper.sol:83:9
+   │
+83 │         boldToken.transfer(msg.sender, _params.boldAmount);
+   │         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   │
+   ╰ help: https://book.getfoundry.sh/reference/forge/forge-lint#erc20-unchecked-transfer
+
+warning[erc20-unchecked-transfer]: ERC20 'transfer' and 'transferFrom' calls should check the return value
+    ╭▸ src/Zappers/WETHZapper.sol:122:9
+    │
+122 │         boldToken.transferFrom(msg.sender, address(this), _boldAmount);
+    │         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    │
+    ╰ help: https://book.getfoundry.sh/reference/forge/forge-lint#erc20-unchecked-transfer
+
+warning[block-timestamp]: usage of `block.timestamp` in a comparison may be manipulated by validators
+    ╭▸ src/BorrowerOperations.sol:935:20
+    │
+935 │                 && block.timestamp < batch.lastInterestRateAdjTime + INTEREST_RATE_ADJ_COOLDOWN
+    │                    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    │
+    ╰ help: https://book.getfoundry.sh/reference/forge/forge-lint#block-timestamp
+
+warning[erc20-unchecked-transfer]: ERC20 'transfer' and 'transferFrom' calls should check the return value
+    ╭▸ src/Zappers/WETHZapper.sol:193:13
+    │
+193 │             boldToken.transferFrom(msg.sender, address(this), _boldChange);
+    │             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    │
+    ╰ help: https://book.getfoundry.sh/reference/forge/forge-lint#erc20-unchecked-transfer
+
+warning[erc20-unchecked-transfer]: ERC20 'transfer' and 'transferFrom' calls should check the return value
+    ╭▸ src/Zappers/WETHZapper.sol:209:13
+    │
+209 │             boldToken.transfer(_receiver, _boldChange);
+    │             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    │
+    ╰ help: https://book.getfoundry.sh/reference/forge/forge-lint#erc20-unchecked-transfer
+
+warning[erc20-unchecked-transfer]: ERC20 'transfer' and 'transferFrom' calls should check the return value
+    ╭▸ src/Zappers/WETHZapper.sol:215:13
+    │
+215 │             boldToken.transfer(_initialBalances.receiver, currentBoldBalance - _initialBalances.balances[1]);
+    │             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    │
+    ╰ help: https://book.getfoundry.sh/reference/forge/forge-lint#erc20-unchecked-transfer
+
+warning[block-timestamp]: usage of `block.timestamp` in a comparison may be manipulated by validators
+     ╭▸ src/BorrowerOperations.sol:1118:20
+     │
+1118 │                 && block.timestamp < vars.trove.lastInterestRateAdjTime + INTEREST_RATE_ADJ_COOLDOWN
+     │                    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+     │
+     ╰ help: https://book.getfoundry.sh/reference/forge/forge-lint#block-timestamp
+
+warning[erc20-unchecked-transfer]: ERC20 'transfer' and 'transferFrom' calls should check the return value
+    ╭▸ src/Zappers/WETHZapper.sol:235:9
+    │
+235 │         boldToken.transferFrom(msg.sender, address(this), trove.entireDebt);
+    │         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    │
+    ╰ help: https://book.getfoundry.sh/reference/forge/forge-lint#erc20-unchecked-transfer
+
+warning[erc20-unchecked-transfer]: ERC20 'transfer' and 'transferFrom' calls should check the return value
+    ╭▸ src/Zappers/GasCompZapper.sol:123:9
+    │
+123 │         boldToken.transfer(receiver, _boldAmount);
+    │         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    │
+    ╰ help: https://book.getfoundry.sh/reference/forge/forge-lint#erc20-unchecked-transfer
+
+warning[erc20-unchecked-transfer]: ERC20 'transfer' and 'transferFrom' calls should check the return value
+    ╭▸ src/Zappers/GasCompZapper.sol:135:9
+    │
+135 │         boldToken.transferFrom(msg.sender, address(this), _boldAmount);
+    │         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    │
+    ╰ help: https://book.getfoundry.sh/reference/forge/forge-lint#erc20-unchecked-transfer
+
+warning[erc20-unchecked-transfer]: ERC20 'transfer' and 'transferFrom' calls should check the return value
+    ╭▸ src/Zappers/GasCompZapper.sol:199:13
+    │
+199 │             boldToken.transferFrom(msg.sender, address(this), _boldChange);
+    │             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    │
+    ╰ help: https://book.getfoundry.sh/reference/forge/forge-lint#erc20-unchecked-transfer
+
+warning[erc20-unchecked-transfer]: ERC20 'transfer' and 'transferFrom' calls should check the return value
+    ╭▸ src/Zappers/WETHZapper.sol:295:9
+    │
+295 │         WETH.transfer(address(flashLoanProvider), _params.flashLoanAmount);
+    │         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    │
+    ╰ help: https://book.getfoundry.sh/reference/forge/forge-lint#erc20-unchecked-transfer
+
+warning[unsafe-typecast]: typecasts that can truncate values should be checked
+   ╭▸ src/Dependencies/Constants.sol:50:52
+   │
+50 │ uint128 constant MAX_ANNUAL_BATCH_MANAGEMENT_FEE = uint128(_100pct / 10); // 10%
+   │                                                    ━━━━━━━━━━━━━━━━━━━━━
+   │
+   ├ note: consider disabling this lint if you're certain the cast is safe
+   │       
+   │       // casting to 'uint128' is safe because [explain why]
+   │       // forge-lint: disable-next-line(unsafe-typecast)
+   │       
+   │       
+   ╰ help: https://book.getfoundry.sh/reference/forge/forge-lint#unsafe-typecast
+
+warning[block-timestamp]: usage of `block.timestamp` in a comparison may be manipulated by validators
+     ╭▸ src/BorrowerOperations.sol:1542:13
+     │
+1542 │         if (block.timestamp < _lastInterestRateAdjTime + uint256(interestBatchManager.minInterestRateChangePeriod)) {
+     │             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+     │
+     ╰ help: https://book.getfoundry.sh/reference/forge/forge-lint#block-timestamp
+
+warning[block-timestamp]: usage of `block.timestamp` in a comparison may be manipulated by validators
+     ╭▸ src/BorrowerOperations.sol:1551:13
+     │
+1551 │         if (block.timestamp < _lastInterestRateAdjTime + _minInterestRateChangePeriod) {
+     │             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+     │
+     ╰ help: https://book.getfoundry.sh/reference/forge/forge-lint#block-timestamp
+
+warning[erc20-unchecked-transfer]: ERC20 'transfer' and 'transferFrom' calls should check the return value
+    ╭▸ src/Zappers/GasCompZapper.sol:220:13
+    │
+220 │             boldToken.transfer(_receiver, _boldChange);
+    │             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    │
+    ╰ help: https://book.getfoundry.sh/reference/forge/forge-lint#erc20-unchecked-transfer
+
+warning[erc20-unchecked-transfer]: ERC20 'transfer' and 'transferFrom' calls should check the return value
+    ╭▸ src/Zappers/GasCompZapper.sol:234:9
+    │
+234 │         boldToken.transferFrom(msg.sender, address(this), trove.entireDebt);
+    │         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    │
+    ╰ help: https://book.getfoundry.sh/reference/forge/forge-lint#erc20-unchecked-transfer
+
+warning[erc20-unchecked-transfer]: ERC20 'transfer' and 'transferFrom' calls should check the return value
+    ╭▸ src/BorrowerOperations.sol:376:9
+    │
+376 │         WETH.transferFrom(msg.sender, gasPoolAddress, ETH_GAS_COMPENSATION);
+    │         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    │
+    ╰ help: https://book.getfoundry.sh/reference/forge/forge-lint#erc20-unchecked-transfer
+
+warning[unsafe-typecast]: typecasts that can truncate values should be checked
+    ╭▸ src/NFTMetadata/utils/Utils.sol:251:41
+    │
+251 │                 buffer[digits] = bytes1(uint8(48 + uint256(value % 10)));
+    │                                         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    │
+    ├ note: consider disabling this lint if you're certain the cast is safe
+    │       
+    │       // casting to 'uint8' is safe because [explain why]
+    │       // forge-lint: disable-next-line(unsafe-typecast)
+    │       
+    │       
+    ╰ help: https://book.getfoundry.sh/reference/forge/forge-lint#unsafe-typecast
+
+warning[erc20-unchecked-transfer]: ERC20 'transfer' and 'transferFrom' calls should check the return value
+    ╭▸ src/BorrowerOperations.sol:741:9
+    │
+741 │         WETH.transferFrom(gasPoolAddress, receiver, ETH_GAS_COMPENSATION);
+    │         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    │
+    ╰ help: https://book.getfoundry.sh/reference/forge/forge-lint#erc20-unchecked-transfer
+
+warning[erc20-unchecked-transfer]: ERC20 'transfer' and 'transferFrom' calls should check the return value
+   ╭▸ src/Zappers/Modules/Exchanges/UniV3Exchange.sol:37:9
+   │
+37 │         boldToken.transferFrom(msg.sender, address(this), _boldAmount);
+   │         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   │
+   ╰ help: https://book.getfoundry.sh/reference/forge/forge-lint#erc20-unchecked-transfer
+
+warning[erc20-unchecked-transfer]: ERC20 'transfer' and 'transferFrom' calls should check the return value
+   ╭▸ src/Zappers/Modules/Exchanges/HybridCurveUniV3Exchange.sol:73:9
+   │
+73 │         boldToken.transferFrom(msg.sender, address(this), _boldAmount);
+   │         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   │
+   ╰ help: https://book.getfoundry.sh/reference/forge/forge-lint#erc20-unchecked-transfer
+
+warning[unsafe-typecast]: typecasts that can truncate values should be checked
+   ╭▸ src/Zappers/Modules/Exchanges/HybridCurveUniV3Exchange.sol:76:54
+   │
+76 │         uint256 curveUsdcAmount = curvePool.exchange(int128(BOLD_TOKEN_INDEX), int128(USDC_INDEX), _boldAmount, 0);
+   │                                                      ━━━━━━━━━━━━━━━━━━━━━━━━
+   │
+   ├ note: consider disabling this lint if you're certain the cast is safe
+   │       
+   │       // casting to 'int128' is safe because [explain why]
+   │       // forge-lint: disable-next-line(unsafe-typecast)
+   │       
+   │       
+   ╰ help: https://book.getfoundry.sh/reference/forge/forge-lint#unsafe-typecast
+
+warning[unsafe-typecast]: typecasts that can truncate values should be checked
+   ╭▸ src/Zappers/Modules/Exchanges/HybridCurveUniV3Exchange.sol:76:80
+   │
+76 │         uint256 curveUsdcAmount = curvePool.exchange(int128(BOLD_TOKEN_INDEX), int128(USDC_INDEX), _boldAmount, 0);
+   │                                                                                ━━━━━━━━━━━━━━━━━━
+   │
+   ├ note: consider disabling this lint if you're certain the cast is safe
+   │       
+   │       // casting to 'int128' is safe because [explain why]
+   │       // forge-lint: disable-next-line(unsafe-typecast)
+   │       
+   │       
+   ╰ help: https://book.getfoundry.sh/reference/forge/forge-lint#unsafe-typecast
+
+warning[unsafe-typecast]: typecasts that can truncate values should be checked
+    ╭▸ src/Zappers/Modules/Exchanges/HybridCurveUniV3Exchange.sol:136:32
+    │
+136 │             curvePool.exchange(int128(USDC_INDEX), int128(BOLD_TOKEN_INDEX), uniV3UsdcAmount, _minBoldAmount);
+    │                                ━━━━━━━━━━━━━━━━━━
+    │
+    ├ note: consider disabling this lint if you're certain the cast is safe
+    │       
+    │       // casting to 'int128' is safe because [explain why]
+    │       // forge-lint: disable-next-line(unsafe-typecast)
+    │       
+    │       
+    ╰ help: https://book.getfoundry.sh/reference/forge/forge-lint#unsafe-typecast
+
+warning[unsafe-typecast]: typecasts that can truncate values should be checked
+    ╭▸ src/Zappers/Modules/Exchanges/HybridCurveUniV3Exchange.sol:136:52
+    │
+136 │             curvePool.exchange(int128(USDC_INDEX), int128(BOLD_TOKEN_INDEX), uniV3UsdcAmount, _minBoldAmount);
+    │                                                    ━━━━━━━━━━━━━━━━━━━━━━━━
+    │
+    ├ note: consider disabling this lint if you're certain the cast is safe
+    │       
+    │       // casting to 'int128' is safe because [explain why]
+    │       // forge-lint: disable-next-line(unsafe-typecast)
+    │       
+    │       
+    ╰ help: https://book.getfoundry.sh/reference/forge/forge-lint#unsafe-typecast
+
+warning[erc20-unchecked-transfer]: ERC20 'transfer' and 'transferFrom' calls should check the return value
+    ╭▸ src/Zappers/Modules/Exchanges/HybridCurveUniV3Exchange.sol:137:9
+    │
+137 │         boldToken.transfer(msg.sender, boldAmount);
+    │         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    │
+    ╰ help: https://book.getfoundry.sh/reference/forge/forge-lint#erc20-unchecked-transfer
+
+warning[unsafe-typecast]: typecasts that can truncate values should be checked
+   ╭▸ src/Zappers/Modules/Exchanges/HybridCurveUniV3ExchangeHelpers.sol:80:52
+   │
+80 │         uint256 curveUsdcAmount = curvePool.get_dy(int128(BOLD_TOKEN_INDEX), int128(USDC_INDEX), _boldAmount);
+   │                                                    ━━━━━━━━━━━━━━━━━━━━━━━━
+   │
+   ├ note: consider disabling this lint if you're certain the cast is safe
+   │       
+   │       // casting to 'int128' is safe because [explain why]
+   │       // forge-lint: disable-next-line(unsafe-typecast)
+   │       
+   │       
+   ╰ help: https://book.getfoundry.sh/reference/forge/forge-lint#unsafe-typecast
+
+warning[unsafe-typecast]: typecasts that can truncate values should be checked
+   ╭▸ src/Zappers/Modules/Exchanges/HybridCurveUniV3ExchangeHelpers.sol:80:78
+   │
+80 │         uint256 curveUsdcAmount = curvePool.get_dy(int128(BOLD_TOKEN_INDEX), int128(USDC_INDEX), _boldAmount);
+   │                                                                              ━━━━━━━━━━━━━━━━━━
+   │
+   ├ note: consider disabling this lint if you're certain the cast is safe
+   │       
+   │       // casting to 'int128' is safe because [explain why]
+   │       // forge-lint: disable-next-line(unsafe-typecast)
+   │       
+   │       
+   ╰ help: https://book.getfoundry.sh/reference/forge/forge-lint#unsafe-typecast
+
+warning[block-timestamp]: usage of `block.timestamp` in a comparison may be manipulated by validators
+   ╭▸ src/HintHelpers.sol:98:20
+   │
+98 │                 || block.timestamp >= trove.lastInterestRateAdjTime + INTEREST_RATE_ADJ_COOLDOWN
+   │                    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   │
+   ╰ help: https://book.getfoundry.sh/reference/forge/forge-lint#block-timestamp
+
+warning[erc20-unchecked-transfer]: ERC20 'transfer' and 'transferFrom' calls should check the return value
+   ╭▸ src/Zappers/Modules/Exchanges/CurveExchange.sol:37:9
+   │
+37 │         boldToken.transferFrom(msg.sender, address(this), _boldAmount);
+   │         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   │
+   ╰ help: https://book.getfoundry.sh/reference/forge/forge-lint#erc20-unchecked-transfer
+
+warning[erc20-unchecked-transfer]: ERC20 'transfer' and 'transferFrom' calls should check the return value
+   ╭▸ src/Zappers/Modules/Exchanges/CurveExchange.sol:45:13
+   │
+45 │             boldToken.transfer(msg.sender, currentBoldBalance - initialBoldBalance);
+   │             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   │
+   ╰ help: https://book.getfoundry.sh/reference/forge/forge-lint#erc20-unchecked-transfer
+
+warning[erc20-unchecked-transfer]: ERC20 'transfer' and 'transferFrom' calls should check the return value
+   ╭▸ src/Zappers/Modules/Exchanges/CurveExchange.sol:56:9
+   │
+56 │         boldToken.transfer(msg.sender, output);
+   │         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   │
+   ╰ help: https://book.getfoundry.sh/reference/forge/forge-lint#erc20-unchecked-transfer
+
+warning[unsafe-typecast]: typecasts that can truncate values should be checked
+    ╭▸ src/StabilityPool.sol:246:13
+    │
+246 │             int256(_topUp),
+    │             ━━━━━━━━━━━━━━
+    │
+    ├ note: consider disabling this lint if you're certain the cast is safe
+    │       
+    │       // casting to 'int256' is safe because [explain why]
+    │       // forge-lint: disable-next-line(unsafe-typecast)
+    │       
+    │       
+    ╰ help: https://book.getfoundry.sh/reference/forge/forge-lint#unsafe-typecast
+
+warning[unsafe-typecast]: typecasts that can truncate values should be checked
+    ╭▸ src/StabilityPool.sol:305:14
+    │
+305 │             -int256(boldToWithdraw),
+    │              ━━━━━━━━━━━━━━━━━━━━━━
+    │
+    ├ note: consider disabling this lint if you're certain the cast is safe
+    │       
+    │       // casting to 'int256' is safe because [explain why]
+    │       // forge-lint: disable-next-line(unsafe-typecast)
+    │       
+    │       
+    ╰ help: https://book.getfoundry.sh/reference/forge/forge-lint#unsafe-typecast
+
+warning[erc20-unchecked-transfer]: ERC20 'transfer' and 'transferFrom' calls should check the return value
+    ╭▸ src/Zappers/LeverageWETHZapper.sol:102:9
+    │
+102 │         WETH.transfer(address(flashLoanProvider), _params.flashLoanAmount);
+    │         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    │
+    ╰ help: https://book.getfoundry.sh/reference/forge/forge-lint#erc20-unchecked-transfer
+
+warning[erc20-unchecked-transfer]: ERC20 'transfer' and 'transferFrom' calls should check the return value
+    ╭▸ src/Zappers/LeverageWETHZapper.sol:149:9
+    │
+149 │         WETH.transfer(address(flashLoanProvider), _params.flashLoanAmount);
+    │         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    │
+    ╰ help: https://book.getfoundry.sh/reference/forge/forge-lint#erc20-unchecked-transfer
+
+warning[block-timestamp]: usage of `block.timestamp` in a comparison may be manipulated by validators
+    ╭▸ src/HintHelpers.sol:175:20
+    │
+175 │                 || block.timestamp >= batch.lastInterestRateAdjTime + INTEREST_RATE_ADJ_COOLDOWN
+    │                    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    │
+    ╰ help: https://book.getfoundry.sh/reference/forge/forge-lint#block-timestamp
+
+warning[erc20-unchecked-transfer]: ERC20 'transfer' and 'transferFrom' calls should check the return value
+    ╭▸ src/Zappers/LeverageWETHZapper.sol:194:9
+    │
+194 │         WETH.transfer(address(flashLoanProvider), _params.flashLoanAmount);
+    │         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    │
+    ╰ help: https://book.getfoundry.sh/reference/forge/forge-lint#erc20-unchecked-transfer
+
+warning[block-timestamp]: usage of `block.timestamp` in a comparison may be manipulated by validators
+    ╭▸ src/HintHelpers.sol:243:20
+    │
+243 │                 || block.timestamp >= trove.lastInterestRateAdjTime + INTEREST_RATE_ADJ_COOLDOWN
+    │                    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    │
+    ╰ help: https://book.getfoundry.sh/reference/forge/forge-lint#block-timestamp
+
+warning[erc20-unchecked-transfer]: ERC20 'transfer' and 'transferFrom' calls should check the return value
+    ╭▸ src/TroveManager.sol:539:13
+    │
+539 │             WETH.transferFrom(gasPoolAddress, _liquidator, _eth);
+    │             ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    │
+    ╰ help: https://book.getfoundry.sh/reference/forge/forge-lint#erc20-unchecked-transfer
+
+
+Running 3 tests for test/LiquityProps.t.sol:LiquityMathProps
+[console.log] [95mBound result p_shares_uint256_550563e_00[0m
+[console.log] [95mBound result p_debtIncrease_uint256_181c4ab_00[0m
+[console.log] [95mBound result p_batchDebt_uint256_cd871ff_00[0m
+[console.log] [95mBound result +(0x00000000000000000000000000000000000000000000d3c21bcecceda1000001, p_batchDebt_uint256_cd871ff_00)[0m
+[console.log] [95mBound result 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000[0m
+[console.log] [95mBound result f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffff2c3de43133125f000000, p_batchDebt_uint256_cd871ff_00), 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000)[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000000000001, p_batchDebt_uint256_cd871ff_00)[0m
+[console.log] [95mBound result +(0x00000000000000000000000000000000000000000000d3c21bcecceda1000001, p_debtIncrease_uint256_181c4ab_00)[0m
+[console.log] [95mBound result p_batchDebt_uint256_cd871ff_00[0m
+[console.log] [95mBound result +(0x00000000000000000000000000000000000000000000d3c21bcecceda1000001, p_batchDebt_uint256_cd871ff_00)[0m
+[console.log] [95mBound result 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000[0m
+[console.log] [95mBound result f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffff2c3de43133125f000000, p_batchDebt_uint256_cd871ff_00), 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000)[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000000000001, p_batchDebt_uint256_cd871ff_00)[0m
+[console.log] [95mBound result 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000[0m
+[console.log] [95mBound result p_batchDebt_uint256_cd871ff_00[0m
+[console.log] [95mBound result +(0x00000000000000000000000000000000000000000000d3c21bcecceda1000001, p_batchDebt_uint256_cd871ff_00)[0m
+[console.log] [95mBound result 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000[0m
+[console.log] [95mBound result f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffff2c3de43133125f000000, p_batchDebt_uint256_cd871ff_00), 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000)[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000000000001, p_batchDebt_uint256_cd871ff_00)[0m
+[console.log] [95mBound result f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffff2c3de43133125f000000, p_debtIncrease_uint256_181c4ab_00), 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000)[0m
+[console.log] [95mBound result p_batchDebt_uint256_cd871ff_00[0m
+[console.log] [95mBound result +(0x00000000000000000000000000000000000000000000d3c21bcecceda1000001, p_batchDebt_uint256_cd871ff_00)[0m
+[console.log] [95mBound result 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000[0m
+[console.log] [95mBound result f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffff2c3de43133125f000000, p_batchDebt_uint256_cd871ff_00), 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000)[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000000000001, p_batchDebt_uint256_cd871ff_00)[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000000000001, p_debtIncrease_uint256_181c4ab_00)[0m
+[console.log] [95mBound result p_batchDebt_uint256_cd871ff_00[0m
+[console.log] [95mBound result +(0x00000000000000000000000000000000000000000000d3c21bcecceda1000001, p_batchDebt_uint256_cd871ff_00)[0m
+[console.log] [95mBound result 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000[0m
+[console.log] [95mBound result f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffff2c3de43133125f000000, p_batchDebt_uint256_cd871ff_00), 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000)[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000000000001, p_batchDebt_uint256_cd871ff_00)[0m
+[console.log] [95mBound result +(0x00000000000000000000000000000000000000000000d3c21bcecceda1000001, p_shares_uint256_550563e_00)[0m
+[console.log] [95mBound result p_debtIncrease_uint256_181c4ab_00[0m
+[console.log] [95mBound result p_batchDebt_uint256_cd871ff_00[0m
+[console.log] [95mBound result +(0x00000000000000000000000000000000000000000000d3c21bcecceda1000001, p_batchDebt_uint256_cd871ff_00)[0m
+[console.log] [95mBound result 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000[0m
+[console.log] [95mBound result f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffff2c3de43133125f000000, p_batchDebt_uint256_cd871ff_00), 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000)[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000000000001, p_batchDebt_uint256_cd871ff_00)[0m
+[console.log] [95mBound result +(0x00000000000000000000000000000000000000000000d3c21bcecceda1000001, p_debtIncrease_uint256_181c4ab_00)[0m
+[console.log] [95mBound result p_batchDebt_uint256_cd871ff_00[0m
+[console.log] [95mBound result +(0x00000000000000000000000000000000000000000000d3c21bcecceda1000001, p_batchDebt_uint256_cd871ff_00)[0m
+[console.log] [95mBound result 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000[0m
+[console.log] [95mBound result f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffff2c3de43133125f000000, p_batchDebt_uint256_cd871ff_00), 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000)[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000000000001, p_batchDebt_uint256_cd871ff_00)[0m
+[console.log] [95mBound result 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000[0m
+[console.log] [95mBound result p_batchDebt_uint256_cd871ff_00[0m
+[console.log] [95mBound result +(0x00000000000000000000000000000000000000000000d3c21bcecceda1000001, p_batchDebt_uint256_cd871ff_00)[0m
+[console.log] [95mBound result 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000[0m
+[console.log] [95mBound result f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffff2c3de43133125f000000, p_batchDebt_uint256_cd871ff_00), 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000)[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000000000001, p_batchDebt_uint256_cd871ff_00)[0m
+[console.log] [95mBound result f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffff2c3de43133125f000000, p_debtIncrease_uint256_181c4ab_00), 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000)[0m
+[console.log] [95mBound result p_batchDebt_uint256_cd871ff_00[0m
+[console.log] [95mBound result +(0x00000000000000000000000000000000000000000000d3c21bcecceda1000001, p_batchDebt_uint256_cd871ff_00)[0m
+[console.log] [95mBound result 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000[0m
+[console.log] [95mBound result f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffff2c3de43133125f000000, p_batchDebt_uint256_cd871ff_00), 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000)[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000000000001, p_batchDebt_uint256_cd871ff_00)[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000000000001, p_debtIncrease_uint256_181c4ab_00)[0m
+[console.log] [95mBound result p_batchDebt_uint256_cd871ff_00[0m
+[console.log] [95mBound result +(0x00000000000000000000000000000000000000000000d3c21bcecceda1000001, p_batchDebt_uint256_cd871ff_00)[0m
+[console.log] [95mBound result 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000[0m
+[console.log] [95mBound result f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffff2c3de43133125f000000, p_batchDebt_uint256_cd871ff_00), 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000)[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000000000001, p_batchDebt_uint256_cd871ff_00)[0m
+[console.log] [95mBound result 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000[0m
+[console.log] [95mBound result p_debtIncrease_uint256_181c4ab_00[0m
+[console.log] [95mBound result p_batchDebt_uint256_cd871ff_00[0m
+[console.log] [95mBound result +(0x00000000000000000000000000000000000000000000d3c21bcecceda1000001, p_batchDebt_uint256_cd871ff_00)[0m
+[console.log] [95mBound result 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000[0m
+[console.log] [95mBound result f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffff2c3de43133125f000000, p_batchDebt_uint256_cd871ff_00), 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000)[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000000000001, p_batchDebt_uint256_cd871ff_00)[0m
+[console.log] [95mBound result +(0x00000000000000000000000000000000000000000000d3c21bcecceda1000001, p_debtIncrease_uint256_181c4ab_00)[0m
+[console.log] [95mBound result p_batchDebt_uint256_cd871ff_00[0m
+[console.log] [95mBound result +(0x00000000000000000000000000000000000000000000d3c21bcecceda1000001, p_batchDebt_uint256_cd871ff_00)[0m
+[console.log] [95mBound result 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000[0m
+[console.log] [95mBound result f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffff2c3de43133125f000000, p_batchDebt_uint256_cd871ff_00), 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000)[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000000000001, p_batchDebt_uint256_cd871ff_00)[0m
+[console.log] [95mBound result 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000[0m
+[console.log] [95mBound result p_batchDebt_uint256_cd871ff_00[0m
+[console.log] [95mBound result +(0x00000000000000000000000000000000000000000000d3c21bcecceda1000001, p_batchDebt_uint256_cd871ff_00)[0m
+[console.log] [95mBound result 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000[0m
+[console.log] [95mBound result f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffff2c3de43133125f000000, p_batchDebt_uint256_cd871ff_00), 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000)[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000000000001, p_batchDebt_uint256_cd871ff_00)[0m
+[console.log] [95mBound result f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffff2c3de43133125f000000, p_debtIncrease_uint256_181c4ab_00), 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000)[0m
+[console.log] [95mBound result p_batchDebt_uint256_cd871ff_00[0m
+[console.log] [95mBound result +(0x00000000000000000000000000000000000000000000d3c21bcecceda1000001, p_batchDebt_uint256_cd871ff_00)[0m
+[console.log] [95mBound result 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000[0m
+[console.log] [95mBound result f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffff2c3de43133125f000000, p_batchDebt_uint256_cd871ff_00), 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000)[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000000000001, p_batchDebt_uint256_cd871ff_00)[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000000000001, p_debtIncrease_uint256_181c4ab_00)[0m
+[console.log] [95mBound result p_batchDebt_uint256_cd871ff_00[0m
+[console.log] [95mBound result +(0x00000000000000000000000000000000000000000000d3c21bcecceda1000001, p_batchDebt_uint256_cd871ff_00)[0m
+[console.log] [95mBound result 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000[0m
+[console.log] [95mBound result f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffff2c3de43133125f000000, p_batchDebt_uint256_cd871ff_00), 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000)[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000000000001, p_batchDebt_uint256_cd871ff_00)[0m
+[console.log] [95mBound result f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffff2c3de43133125f000000, p_shares_uint256_550563e_00), 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000)[0m
+[console.log] [95mBound result p_debtIncrease_uint256_181c4ab_00[0m
+[console.log] [95mBound result p_batchDebt_uint256_cd871ff_00[0m
+[console.log] [95mBound result +(0x00000000000000000000000000000000000000000000d3c21bcecceda1000001, p_batchDebt_uint256_cd871ff_00)[0m
+[console.log] [95mBound result 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000[0m
+[console.log] [95mBound result f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffff2c3de43133125f000000, p_batchDebt_uint256_cd871ff_00), 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000)[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000000000001, p_batchDebt_uint256_cd871ff_00)[0m
+[console.log] [95mBound result +(0x00000000000000000000000000000000000000000000d3c21bcecceda1000001, p_debtIncrease_uint256_181c4ab_00)[0m
+[console.log] [95mBound result p_batchDebt_uint256_cd871ff_00[0m
+[console.log] [95mBound result +(0x00000000000000000000000000000000000000000000d3c21bcecceda1000001, p_batchDebt_uint256_cd871ff_00)[0m
+[console.log] [95mBound result 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000[0m
+[console.log] [95mBound result f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffff2c3de43133125f000000, p_batchDebt_uint256_cd871ff_00), 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000)[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000000000001, p_batchDebt_uint256_cd871ff_00)[0m
+[console.log] [95mBound result 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000[0m
+[console.log] [95mBound result p_batchDebt_uint256_cd871ff_00[0m
+[console.log] [95mBound result +(0x00000000000000000000000000000000000000000000d3c21bcecceda1000001, p_batchDebt_uint256_cd871ff_00)[0m
+[console.log] [95mBound result 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000[0m
+[console.log] [95mBound result f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffff2c3de43133125f000000, p_batchDebt_uint256_cd871ff_00), 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000)[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000000000001, p_batchDebt_uint256_cd871ff_00)[0m
+[console.log] [95mBound result f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffff2c3de43133125f000000, p_debtIncrease_uint256_181c4ab_00), 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000)[0m
+[console.log] [95mBound result p_batchDebt_uint256_cd871ff_00[0m
+[console.log] [95mBound result +(0x00000000000000000000000000000000000000000000d3c21bcecceda1000001, p_batchDebt_uint256_cd871ff_00)[0m
+[console.log] [95mBound result 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000[0m
+[console.log] [95mBound result f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffff2c3de43133125f000000, p_batchDebt_uint256_cd871ff_00), 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000)[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000000000001, p_batchDebt_uint256_cd871ff_00)[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000000000001, p_debtIncrease_uint256_181c4ab_00)[0m
+[console.log] [95mBound result p_batchDebt_uint256_cd871ff_00[0m
+[console.log] [95mBound result +(0x00000000000000000000000000000000000000000000d3c21bcecceda1000001, p_batchDebt_uint256_cd871ff_00)[0m
+[console.log] [95mBound result 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000[0m
+[console.log] [95mBound result f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffff2c3de43133125f000000, p_batchDebt_uint256_cd871ff_00), 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000)[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000000000001, p_batchDebt_uint256_cd871ff_00)[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000000000001, p_shares_uint256_550563e_00)[0m
+[console.log] [95mBound result p_debtIncrease_uint256_181c4ab_00[0m
+[console.log] [95mBound result p_batchDebt_uint256_cd871ff_00[0m
+[console.log] [95mBound result +(0x00000000000000000000000000000000000000000000d3c21bcecceda1000001, p_batchDebt_uint256_cd871ff_00)[0m
+[console.log] [95mBound result 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000[0m
+[console.log] [95mBound result f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffff2c3de43133125f000000, p_batchDebt_uint256_cd871ff_00), 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000)[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000000000001, p_batchDebt_uint256_cd871ff_00)[0m
+[console.log] [95mBound result +(0x00000000000000000000000000000000000000000000d3c21bcecceda1000001, p_debtIncrease_uint256_181c4ab_00)[0m
+[console.log] [95mBound result p_batchDebt_uint256_cd871ff_00[0m
+[console.log] [95mBound result +(0x00000000000000000000000000000000000000000000d3c21bcecceda1000001, p_batchDebt_uint256_cd871ff_00)[0m
+[console.log] [95mBound result 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000[0m
+[console.log] [95mBound result f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffff2c3de43133125f000000, p_batchDebt_uint256_cd871ff_00), 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000)[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000000000001, p_batchDebt_uint256_cd871ff_00)[0m
+[console.log] [95mBound result 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000[0m
+[console.log] [95mBound result p_batchDebt_uint256_cd871ff_00[0m
+[console.log] [95mBound result +(0x00000000000000000000000000000000000000000000d3c21bcecceda1000001, p_batchDebt_uint256_cd871ff_00)[0m
+[console.log] [95mBound result 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000[0m
+[console.log] [95mBound result f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffff2c3de43133125f000000, p_batchDebt_uint256_cd871ff_00), 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000)[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000000000001, p_batchDebt_uint256_cd871ff_00)[0m
+[console.log] [95mBound result f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffff2c3de43133125f000000, p_debtIncrease_uint256_181c4ab_00), 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000)[0m
+[console.log] [95mBound result p_batchDebt_uint256_cd871ff_00[0m
+[console.log] [95mBound result +(0x00000000000000000000000000000000000000000000d3c21bcecceda1000001, p_batchDebt_uint256_cd871ff_00)[0m
+[console.log] [95mBound result 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000[0m
+[console.log] [95mBound result f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffff2c3de43133125f000000, p_batchDebt_uint256_cd871ff_00), 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000)[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000000000001, p_batchDebt_uint256_cd871ff_00)[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000000000001, p_debtIncrease_uint256_181c4ab_00)[0m
+[console.log] [95mBound result p_batchDebt_uint256_cd871ff_00[0m
+[console.log] [95mBound result +(0x00000000000000000000000000000000000000000000d3c21bcecceda1000001, p_batchDebt_uint256_cd871ff_00)[0m
+[console.log] [95mBound result 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000[0m
+[console.log] [95mBound result f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffff2c3de43133125f000000, p_batchDebt_uint256_cd871ff_00), 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000)[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000000000001, p_batchDebt_uint256_cd871ff_00)[0m
+[32m[PASS][0m check_batch_shares_invariant(uint256,uint256,uint256) (paths: 326, time: 5.97s, bounds: [])
+[console.log] [95mBound result p_coll_uint256_5c280c8_00[0m
+[console.log] [95mBound result p_price_uint256_d28ea98_00[0m
+[console.log] [95mBound result +(0x00000000000000000000000000000000000000000000d3c21bcecceda1000001, p_price_uint256_d28ea98_00)[0m
+[console.log] [95mBound result 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000[0m
+[console.log] [95mBound result f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffff2c3de43133125f000000, p_price_uint256_d28ea98_00), 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000)[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000000000001, p_price_uint256_d28ea98_00)[0m
+[console.log] [95mBound result +(0x000000000000000000000000000000000000000c9f2c9cd04674edea40000001, p_coll_uint256_5c280c8_00)[0m
+[console.log] [95mBound result p_price_uint256_d28ea98_00[0m
+[console.log] [95mBound result +(0x00000000000000000000000000000000000000000000d3c21bcecceda1000001, p_price_uint256_d28ea98_00)[0m
+[console.log] [95mBound result 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000[0m
+[console.log] [95mBound result f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffff2c3de43133125f000000, p_price_uint256_d28ea98_00), 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000)[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000000000001, p_price_uint256_d28ea98_00)[0m
+[console.log] [95mBound result 0x000000000000000000000000000000000000000c9f2c9cd04674edea40000000[0m
+[console.log] [95mBound result p_price_uint256_d28ea98_00[0m
+[console.log] [95mBound result +(0x00000000000000000000000000000000000000000000d3c21bcecceda1000001, p_price_uint256_d28ea98_00)[0m
+[console.log] [95mBound result 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000[0m
+[console.log] [95mBound result f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffff2c3de43133125f000000, p_price_uint256_d28ea98_00), 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000)[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000000000001, p_price_uint256_d28ea98_00)[0m
+[console.log] [95mBound result +(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, f_evm_bvurem_256(+(0xfffffffffffffffffffffffffffffffffffffff360d3632fb98b1215c0000000, p_coll_uint256_5c280c8_00), 0x000000000000000000000000000000000000000c9f2c9cd04674edea40000001))[0m
+[console.log] [95mBound result p_price_uint256_d28ea98_00[0m
+[console.log] [95mBound result +(0x00000000000000000000000000000000000000000000d3c21bcecceda1000001, p_price_uint256_d28ea98_00)[0m
+[console.log] [95mBound result 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000[0m
+[console.log] [95mBound result f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffff2c3de43133125f000000, p_price_uint256_d28ea98_00), 0x00000000000000000000000000000000000000000000d3c21bcecceda1000000)[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000000000001, p_price_uint256_d28ea98_00)[0m
+[32m[PASS][0m check_cr_zero_debt(uint256,uint256) (paths: 30, time: 0.40s, bounds: [])
+[console.log] [95mBound result p_weightedDebt_uint256_353ed47_00[0m
+[console.log] [95mBound result p_p1_uint256_b56c874_00[0m
+[console.log] [95mBound result p_p2_uint256_e5690d0_00[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0301, p_p2_uint256_e5690d0_00)[0m
+[console.log] [95mBound result 0x0000000000000000000000000000000000000000000000000000000012cc0300[0m
+[console.log] [95mBound result +(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p1_uint256_b56c874_00, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p2_uint256_e5690d0_00), +(0x0000000000000000000000000000000000000000000000000000000012cc0301, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p1_uint256_b56c874_00))))[0m
+[console.log] [95mBound result 0x0000000000000000000000000000000000000000000000000000000012cc0300[0m
+[console.log] [95mBound result +(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p1_uint256_b56c874_00, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p2_uint256_e5690d0_00), +(0x0000000000000000000000000000000000000000000000000000000012cc0301, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p1_uint256_b56c874_00))))[0m
+[console.log] [95mBound result +(p_p1_uint256_b56c874_00, p_p2_uint256_e5690d0_00)[0m
+[console.log] [95mBound result p_p1_uint256_b56c874_00[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0301, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, f_evm_bvurem_256(+(p_p1_uint256_b56c874_00, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p2_uint256_e5690d0_00)), +(0x0000000000000000000000000000000000000000000000000000000012cc0301, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p1_uint256_b56c874_00)))))[0m
+[console.log] [95mBound result p_p1_uint256_b56c874_00[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0301, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, f_evm_bvurem_256(+(p_p1_uint256_b56c874_00, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p2_uint256_e5690d0_00)), +(0x0000000000000000000000000000000000000000000000000000000012cc0301, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p1_uint256_b56c874_00)))))[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0301, p_p1_uint256_b56c874_00)[0m
+[console.log] [95mBound result p_p2_uint256_e5690d0_00[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0301, p_p2_uint256_e5690d0_00)[0m
+[console.log] [95mBound result 0x0000000000000000000000000000000000000000000000000000000012cc0300[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0300, p_p1_uint256_b56c874_00, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p2_uint256_e5690d0_00), *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p1_uint256_b56c874_00)))[0m
+[console.log] [95mBound result 0x0000000000000000000000000000000000000000000000000000000012cc0300[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0300, p_p1_uint256_b56c874_00, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p2_uint256_e5690d0_00), *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p1_uint256_b56c874_00)))[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0301, p_p1_uint256_b56c874_00, p_p2_uint256_e5690d0_00)[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0301, p_p1_uint256_b56c874_00)[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0301, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, f_evm_bvurem_256(+(0x0000000000000000000000000000000000000000000000000000000012cc0301, p_p1_uint256_b56c874_00, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p2_uint256_e5690d0_00)), *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p1_uint256_b56c874_00))))[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0301, p_p1_uint256_b56c874_00)[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0301, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, f_evm_bvurem_256(+(0x0000000000000000000000000000000000000000000000000000000012cc0301, p_p1_uint256_b56c874_00, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p2_uint256_e5690d0_00)), *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p1_uint256_b56c874_00))))[0m
+[console.log] [95mBound result 0x0000000000000000000000000000000000000000000000000000000012cc0300[0m
+[console.log] [95mBound result p_p2_uint256_e5690d0_00[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0301, p_p2_uint256_e5690d0_00)[0m
+[console.log] [95mBound result 0x0000000000000000000000000000000000000000000000000000000012cc0300[0m
+[console.log] [95mBound result 0x0000000000000000000000000000000000000000000000000000000012cc0300[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0300, p_p2_uint256_e5690d0_00)[0m
+[console.log] [95mBound result 0x0000000000000000000000000000000000000000000000000000000012cc0300[0m
+[console.log] [95mBound result 0x0000000000000000000000000000000000000000000000000000000012cc0300[0m
+[console.log] [95mBound result +(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p1_uint256_b56c874_00), 0x0000000000000000000000000000000000000000000000000000000012cc0301))[0m
+[console.log] [95mBound result p_p2_uint256_e5690d0_00[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0301, p_p2_uint256_e5690d0_00)[0m
+[console.log] [95mBound result 0x0000000000000000000000000000000000000000000000000000000012cc0300[0m
+[console.log] [95mBound result +(0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p1_uint256_b56c874_00), 0x0000000000000000000000000000000000000000000000000000000012cc0301), f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p2_uint256_e5690d0_00), +(0x0000000000000000000000000000000000000000000000000000000012cc0302, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p1_uint256_b56c874_00), 0x0000000000000000000000000000000000000000000000000000000012cc0301)))))[0m
+[console.log] [95mBound result 0x0000000000000000000000000000000000000000000000000000000012cc0300[0m
+[console.log] [95mBound result +(0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p1_uint256_b56c874_00), 0x0000000000000000000000000000000000000000000000000000000012cc0301), f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p2_uint256_e5690d0_00), +(0x0000000000000000000000000000000000000000000000000000000012cc0302, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p1_uint256_b56c874_00), 0x0000000000000000000000000000000000000000000000000000000012cc0301)))))[0m
+[console.log] [95mBound result +(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p1_uint256_b56c874_00), 0x0000000000000000000000000000000000000000000000000000000012cc0301), p_p2_uint256_e5690d0_00)[0m
+[console.log] [95mBound result +(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p1_uint256_b56c874_00), 0x0000000000000000000000000000000000000000000000000000000012cc0301))[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0301, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p1_uint256_b56c874_00), 0x0000000000000000000000000000000000000000000000000000000012cc0301), *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p2_uint256_e5690d0_00)), +(0x0000000000000000000000000000000000000000000000000000000012cc0302, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p1_uint256_b56c874_00), 0x0000000000000000000000000000000000000000000000000000000012cc0301))))))[0m
+[console.log] [95mBound result +(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p1_uint256_b56c874_00), 0x0000000000000000000000000000000000000000000000000000000012cc0301))[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0301, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p1_uint256_b56c874_00), 0x0000000000000000000000000000000000000000000000000000000012cc0301), *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p2_uint256_e5690d0_00)), +(0x0000000000000000000000000000000000000000000000000000000012cc0302, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p1_uint256_b56c874_00), 0x0000000000000000000000000000000000000000000000000000000012cc0301))))))[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000c097ce7bc90715b34b9f1000000001, p_weightedDebt_uint256_353ed47_00)[0m
+[console.log] [95mBound result p_p1_uint256_b56c874_00[0m
+[console.log] [95mBound result p_p2_uint256_e5690d0_00[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0301, p_p2_uint256_e5690d0_00)[0m
+[console.log] [95mBound result 0x0000000000000000000000000000000000000000000000000000000012cc0300[0m
+[console.log] [95mBound result +(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p1_uint256_b56c874_00, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p2_uint256_e5690d0_00), +(0x0000000000000000000000000000000000000000000000000000000012cc0301, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p1_uint256_b56c874_00))))[0m
+[console.log] [95mBound result 0x0000000000000000000000000000000000000000000000000000000012cc0300[0m
+[console.log] [95mBound result +(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p1_uint256_b56c874_00, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p2_uint256_e5690d0_00), +(0x0000000000000000000000000000000000000000000000000000000012cc0301, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p1_uint256_b56c874_00))))[0m
+[console.log] [95mBound result +(p_p1_uint256_b56c874_00, p_p2_uint256_e5690d0_00)[0m
+[console.log] [95mBound result p_p1_uint256_b56c874_00[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0301, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, f_evm_bvurem_256(+(p_p1_uint256_b56c874_00, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p2_uint256_e5690d0_00)), +(0x0000000000000000000000000000000000000000000000000000000012cc0301, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p1_uint256_b56c874_00)))))[0m
+[console.log] [95mBound result p_p1_uint256_b56c874_00[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0301, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, f_evm_bvurem_256(+(p_p1_uint256_b56c874_00, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p2_uint256_e5690d0_00)), +(0x0000000000000000000000000000000000000000000000000000000012cc0301, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p1_uint256_b56c874_00)))))[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0301, p_p1_uint256_b56c874_00)[0m
+[console.log] [95mBound result p_p2_uint256_e5690d0_00[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0301, p_p2_uint256_e5690d0_00)[0m
+[console.log] [95mBound result 0x0000000000000000000000000000000000000000000000000000000012cc0300[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0300, p_p1_uint256_b56c874_00, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p2_uint256_e5690d0_00), *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p1_uint256_b56c874_00)))[0m
+[console.log] [95mBound result 0x0000000000000000000000000000000000000000000000000000000012cc0300[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0300, p_p1_uint256_b56c874_00, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p2_uint256_e5690d0_00), *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p1_uint256_b56c874_00)))[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0301, p_p1_uint256_b56c874_00, p_p2_uint256_e5690d0_00)[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0301, p_p1_uint256_b56c874_00)[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0301, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, f_evm_bvurem_256(+(0x0000000000000000000000000000000000000000000000000000000012cc0301, p_p1_uint256_b56c874_00, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p2_uint256_e5690d0_00)), *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p1_uint256_b56c874_00))))[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0301, p_p1_uint256_b56c874_00)[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0301, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, f_evm_bvurem_256(+(0x0000000000000000000000000000000000000000000000000000000012cc0301, p_p1_uint256_b56c874_00, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p2_uint256_e5690d0_00)), *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p1_uint256_b56c874_00))))[0m
+[console.log] [95mBound result 0x0000000000000000000000000000000000000000000000000000000012cc0300[0m
+[console.log] [95mBound result p_p2_uint256_e5690d0_00[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0301, p_p2_uint256_e5690d0_00)[0m
+[console.log] [95mBound result 0x0000000000000000000000000000000000000000000000000000000012cc0300[0m
+[console.log] [95mBound result 0x0000000000000000000000000000000000000000000000000000000012cc0300[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0300, p_p2_uint256_e5690d0_00)[0m
+[console.log] [95mBound result 0x0000000000000000000000000000000000000000000000000000000012cc0300[0m
+[console.log] [95mBound result 0x0000000000000000000000000000000000000000000000000000000012cc0300[0m
+[console.log] [95mBound result +(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p1_uint256_b56c874_00), 0x0000000000000000000000000000000000000000000000000000000012cc0301))[0m
+[console.log] [95mBound result p_p2_uint256_e5690d0_00[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0301, p_p2_uint256_e5690d0_00)[0m
+[console.log] [95mBound result 0x0000000000000000000000000000000000000000000000000000000012cc0300[0m
+[console.log] [95mBound result +(0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p1_uint256_b56c874_00), 0x0000000000000000000000000000000000000000000000000000000012cc0301), f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p2_uint256_e5690d0_00), +(0x0000000000000000000000000000000000000000000000000000000012cc0302, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p1_uint256_b56c874_00), 0x0000000000000000000000000000000000000000000000000000000012cc0301)))))[0m
+[console.log] [95mBound result 0x0000000000000000000000000000000000000000000000000000000012cc0300[0m
+[console.log] [95mBound result +(0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p1_uint256_b56c874_00), 0x0000000000000000000000000000000000000000000000000000000012cc0301), f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p2_uint256_e5690d0_00), +(0x0000000000000000000000000000000000000000000000000000000012cc0302, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p1_uint256_b56c874_00), 0x0000000000000000000000000000000000000000000000000000000012cc0301)))))[0m
+[console.log] [95mBound result +(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p1_uint256_b56c874_00), 0x0000000000000000000000000000000000000000000000000000000012cc0301), p_p2_uint256_e5690d0_00)[0m
+[console.log] [95mBound result +(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p1_uint256_b56c874_00), 0x0000000000000000000000000000000000000000000000000000000012cc0301))[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0301, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p1_uint256_b56c874_00), 0x0000000000000000000000000000000000000000000000000000000012cc0301), *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p2_uint256_e5690d0_00)), +(0x0000000000000000000000000000000000000000000000000000000012cc0302, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p1_uint256_b56c874_00), 0x0000000000000000000000000000000000000000000000000000000012cc0301))))))[0m
+[console.log] [95mBound result +(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p1_uint256_b56c874_00), 0x0000000000000000000000000000000000000000000000000000000012cc0301))[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0301, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p1_uint256_b56c874_00), 0x0000000000000000000000000000000000000000000000000000000012cc0301), *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p2_uint256_e5690d0_00)), +(0x0000000000000000000000000000000000000000000000000000000012cc0302, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p1_uint256_b56c874_00), 0x0000000000000000000000000000000000000000000000000000000012cc0301))))))[0m
+[console.log] [95mBound result 0x0000000000000000000000000000000000c097ce7bc90715b34b9f1000000000[0m
+[console.log] [95mBound result p_p1_uint256_b56c874_00[0m
+[console.log] [95mBound result p_p2_uint256_e5690d0_00[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0301, p_p2_uint256_e5690d0_00)[0m
+[console.log] [95mBound result 0x0000000000000000000000000000000000000000000000000000000012cc0300[0m
+[console.log] [95mBound result +(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p1_uint256_b56c874_00, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p2_uint256_e5690d0_00), +(0x0000000000000000000000000000000000000000000000000000000012cc0301, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p1_uint256_b56c874_00))))[0m
+[console.log] [95mBound result 0x0000000000000000000000000000000000000000000000000000000012cc0300[0m
+[console.log] [95mBound result +(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p1_uint256_b56c874_00, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p2_uint256_e5690d0_00), +(0x0000000000000000000000000000000000000000000000000000000012cc0301, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p1_uint256_b56c874_00))))[0m
+[console.log] [95mBound result +(p_p1_uint256_b56c874_00, p_p2_uint256_e5690d0_00)[0m
+[console.log] [95mBound result p_p1_uint256_b56c874_00[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0301, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, f_evm_bvurem_256(+(p_p1_uint256_b56c874_00, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p2_uint256_e5690d0_00)), +(0x0000000000000000000000000000000000000000000000000000000012cc0301, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p1_uint256_b56c874_00)))))[0m
+[console.log] [95mBound result p_p1_uint256_b56c874_00[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0301, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, f_evm_bvurem_256(+(p_p1_uint256_b56c874_00, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p2_uint256_e5690d0_00)), +(0x0000000000000000000000000000000000000000000000000000000012cc0301, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p1_uint256_b56c874_00)))))[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0301, p_p1_uint256_b56c874_00)[0m
+[console.log] [95mBound result p_p2_uint256_e5690d0_00[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0301, p_p2_uint256_e5690d0_00)[0m
+[console.log] [95mBound result 0x0000000000000000000000000000000000000000000000000000000012cc0300[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0300, p_p1_uint256_b56c874_00, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p2_uint256_e5690d0_00), *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p1_uint256_b56c874_00)))[0m
+[console.log] [95mBound result 0x0000000000000000000000000000000000000000000000000000000012cc0300[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0300, p_p1_uint256_b56c874_00, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p2_uint256_e5690d0_00), *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p1_uint256_b56c874_00)))[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0301, p_p1_uint256_b56c874_00, p_p2_uint256_e5690d0_00)[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0301, p_p1_uint256_b56c874_00)[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0301, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, f_evm_bvurem_256(+(0x0000000000000000000000000000000000000000000000000000000012cc0301, p_p1_uint256_b56c874_00, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p2_uint256_e5690d0_00)), *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p1_uint256_b56c874_00))))[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0301, p_p1_uint256_b56c874_00)[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0301, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, f_evm_bvurem_256(+(0x0000000000000000000000000000000000000000000000000000000012cc0301, p_p1_uint256_b56c874_00, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p2_uint256_e5690d0_00)), *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p1_uint256_b56c874_00))))[0m
+[console.log] [95mBound result 0x0000000000000000000000000000000000000000000000000000000012cc0300[0m
+[console.log] [95mBound result p_p2_uint256_e5690d0_00[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0301, p_p2_uint256_e5690d0_00)[0m
+[console.log] [95mBound result 0x0000000000000000000000000000000000000000000000000000000012cc0300[0m
+[console.log] [95mBound result 0x0000000000000000000000000000000000000000000000000000000012cc0300[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0300, p_p2_uint256_e5690d0_00)[0m
+[console.log] [95mBound result 0x0000000000000000000000000000000000000000000000000000000012cc0300[0m
+[console.log] [95mBound result 0x0000000000000000000000000000000000000000000000000000000012cc0300[0m
+[console.log] [95mBound result 0x0000000000000000000000000000000000000000000000000000000012cc0300[0m
+[console.log] [95mBound result +(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p1_uint256_b56c874_00), 0x0000000000000000000000000000000000000000000000000000000012cc0301))[0m
+[console.log] [95mBound result p_p2_uint256_e5690d0_00[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0301, p_p2_uint256_e5690d0_00)[0m
+[console.log] [95mBound result 0x0000000000000000000000000000000000000000000000000000000012cc0300[0m
+[console.log] [95mBound result +(0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p1_uint256_b56c874_00), 0x0000000000000000000000000000000000000000000000000000000012cc0301), f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p2_uint256_e5690d0_00), +(0x0000000000000000000000000000000000000000000000000000000012cc0302, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p1_uint256_b56c874_00), 0x0000000000000000000000000000000000000000000000000000000012cc0301)))))[0m
+[console.log] [95mBound result 0x0000000000000000000000000000000000000000000000000000000012cc0300[0m
+[console.log] [95mBound result +(0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p1_uint256_b56c874_00), 0x0000000000000000000000000000000000000000000000000000000012cc0301), f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p2_uint256_e5690d0_00), +(0x0000000000000000000000000000000000000000000000000000000012cc0302, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p1_uint256_b56c874_00), 0x0000000000000000000000000000000000000000000000000000000012cc0301)))))[0m
+[console.log] [95mBound result +(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p1_uint256_b56c874_00), 0x0000000000000000000000000000000000000000000000000000000012cc0301), p_p2_uint256_e5690d0_00)[0m
+[console.log] [95mBound result +(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p1_uint256_b56c874_00), 0x0000000000000000000000000000000000000000000000000000000012cc0301))[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0301, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p1_uint256_b56c874_00), 0x0000000000000000000000000000000000000000000000000000000012cc0301), *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p2_uint256_e5690d0_00)), +(0x0000000000000000000000000000000000000000000000000000000012cc0302, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p1_uint256_b56c874_00), 0x0000000000000000000000000000000000000000000000000000000012cc0301))))))[0m
+[console.log] [95mBound result +(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p1_uint256_b56c874_00), 0x0000000000000000000000000000000000000000000000000000000012cc0301))[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0301, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p1_uint256_b56c874_00), 0x0000000000000000000000000000000000000000000000000000000012cc0301), *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p2_uint256_e5690d0_00)), +(0x0000000000000000000000000000000000000000000000000000000012cc0302, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p1_uint256_b56c874_00), 0x0000000000000000000000000000000000000000000000000000000012cc0301))))))[0m
+[console.log] [95mBound result +(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffff3f68318436f8ea4cb460f000000000, p_weightedDebt_uint256_353ed47_00), 0x0000000000000000000000000000000000c097ce7bc90715b34b9f1000000001))[0m
+[console.log] [95mBound result p_p1_uint256_b56c874_00[0m
+[console.log] [95mBound result p_p2_uint256_e5690d0_00[0m
+ERROR    solver_output.error='' (solver_output.returncode=-9)                   
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0301, p_p2_uint256_e5690d0_00)[0m
+[console.log] [95mBound result 0x0000000000000000000000000000000000000000000000000000000012cc0300[0m
+[console.log] [95mBound result +(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p1_uint256_b56c874_00, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p2_uint256_e5690d0_00), +(0x0000000000000000000000000000000000000000000000000000000012cc0301, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p1_uint256_b56c874_00))))[0m
+[console.log] [95mBound result 0x0000000000000000000000000000000000000000000000000000000012cc0300[0m
+[console.log] [95mBound result +(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p1_uint256_b56c874_00, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p2_uint256_e5690d0_00), +(0x0000000000000000000000000000000000000000000000000000000012cc0301, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p1_uint256_b56c874_00))))[0m
+[console.log] [95mBound result +(p_p1_uint256_b56c874_00, p_p2_uint256_e5690d0_00)[0m
+[console.log] [95mBound result p_p1_uint256_b56c874_00[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0301, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, f_evm_bvurem_256(+(p_p1_uint256_b56c874_00, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p2_uint256_e5690d0_00)), +(0x0000000000000000000000000000000000000000000000000000000012cc0301, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p1_uint256_b56c874_00)))))[0m
+ERROR    solver_output.error='' (solver_output.returncode=-9)                   
+[console.log] [95mBound result p_p1_uint256_b56c874_00[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0301, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, f_evm_bvurem_256(+(p_p1_uint256_b56c874_00, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p2_uint256_e5690d0_00)), +(0x0000000000000000000000000000000000000000000000000000000012cc0301, *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p1_uint256_b56c874_00)))))[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0301, p_p1_uint256_b56c874_00)[0m
+[console.log] [95mBound result p_p2_uint256_e5690d0_00[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0301, p_p2_uint256_e5690d0_00)[0m
+[console.log] [95mBound result 0x0000000000000000000000000000000000000000000000000000000012cc0300[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0300, p_p1_uint256_b56c874_00, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p2_uint256_e5690d0_00), *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p1_uint256_b56c874_00)))[0m
+[console.log] [95mBound result 0x0000000000000000000000000000000000000000000000000000000012cc0300[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0300, p_p1_uint256_b56c874_00, f_evm_bvurem_256(+(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffed33fd00, p_p2_uint256_e5690d0_00), *(0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff, p_p1_uint256_b56c874_00)))[0m
+[console.log] [95mBound result +(0x0000000000000000000000000000000000000000000000000000000012cc0301, p_p1_uint256_b56c874_00, p_p2_uint256_e5690d0_00)[0m
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          
+ERROR    solver_output.error='executor has been shutdown'                       
+         (solver_output.returncode=-1)                                          

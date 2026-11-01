@@ -1,0 +1,15 @@
+{
+  "remappings": [
+    "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
+    "openzeppelin-contracts/=lib/openzeppelin-contracts/",
+    "solady/=lib/solady/src/",
+    "smart-wallet/=lib/smart-wallet/src/",
+    "account-abstraction/=lib/account-abstraction/contracts/",
+    "webauthn-sol/=lib/webauthn-sol/src/",
+    "FreshCryptoLib/=lib/webauthn-sol/lib/FreshCryptoLib/solidity/src/",
+    "magic-spend/=lib/magic-spend/src/",
+    "p256-verifier/=lib/p256-verifier/src/",
+    "forge-std/=lib/forge-std/src/"
+  ],
+  "optimizer": {"enabled": true, "runs": 200}
+}

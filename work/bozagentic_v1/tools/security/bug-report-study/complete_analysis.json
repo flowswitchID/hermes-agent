@@ -1,0 +1,1517 @@
+{
+  "total": 184,
+  "accepted": 64,
+  "rejected": 120,
+  "accepted_patterns": {
+    "ORACLE_MANIPULATION": 10,
+    "OVERFLOW/CORRUPTION": 13,
+    "MISSING_SLIPPAGE": 2,
+    "ACCESS_CONTROL": 11,
+    "REENTRANCY": 8,
+    "EXCESS_TOKENS": 2,
+    "OTHER": 1,
+    "MISSING_CHECK": 1,
+    "FRONT_RUNNING/MEV": 2,
+    "ROUNDING/PRECISION": 4,
+    "MISSING_REFUND": 3,
+    "INTEREST/REWARD": 2,
+    "FEE_ON_TRANSFER": 2,
+    "NON_DETERMINISM": 1,
+    "GAS_ISSUE": 1,
+    "DOS/LIVENESS": 1
+  },
+  "rejected_patterns": {
+    "ROUNDING/PRECISION": 10,
+    "OTHER": 18,
+    "REENTRANCY": 21,
+    "ORACLE_MANIPULATION": 8,
+    "MISSING_SLIPPAGE": 1,
+    "ACCESS_CONTROL": 16,
+    "FRONT_RUNNING/MEV": 8,
+    "FEE_ON_TRANSFER": 4,
+    "EXCESS_TOKENS": 1,
+    "FLASH_LOAN": 2,
+    "OVERFLOW/CORRUPTION": 17,
+    "DOS/LIVENESS": 7,
+    "NON_DETERMINISM": 1,
+    "STORAGE_CORRUPTION": 1,
+    "MISSING_REFUND": 1,
+    "INTEREST/REWARD": 2,
+    "GAS_ISSUE": 1,
+    "SIGNATURE/REPLAY": 1
+  },
+  "findings": [
+    {
+      "contest": "basin-high",
+      "num": "105",
+      "title": "For FeeOnTransfer tokens, it is more profitable to call swapFrom / addLiquidity,",
+      "accepted": false,
+      "pattern": "ROUNDING/PRECISION",
+      "chars": 2089
+    },
+    {
+      "contest": "basin-high",
+      "num": "106",
+      "title": "SwapTo not check transferIn amount, so feeOnTransfer token will run out of the w",
+      "accepted": false,
+      "pattern": "OTHER",
+      "chars": 1416
+    },
+    {
+      "contest": "basin-high",
+      "num": "107",
+      "title": "ProportionalLPToken2.calcLPTokenUnderlying will throw error when called because ",
+      "accepted": false,
+      "pattern": "OTHER",
+      "chars": 1162
+    },
+    {
+      "contest": "basin-high",
+      "num": "111",
+      "title": "Missing check about fee-on-transfer tokens",
+      "accepted": false,
+      "pattern": "REENTRANCY",
+      "chars": 2676
+    },
+    {
+      "contest": "basin-high",
+      "num": "112",
+      "title": "MultiFlowPump.readTwaReserves will throw error when called and won't calculate t",
+      "accepted": false,
+      "pattern": "OTHER",
+      "chars": 1415
+    },
+    {
+      "contest": "basin-high",
+      "num": "115",
+      "title": "The `Well` contract is vulnerable to front-running attack",
+      "accepted": false,
+      "pattern": "REENTRANCY",
+      "chars": 2731
+    },
+    {
+      "contest": "basin-high",
+      "num": "11",
+      "title": "Skim() is susceptible to MEV bot attack.",
+      "accepted": false,
+      "pattern": "REENTRANCY",
+      "chars": 1801
+    },
+    {
+      "contest": "basin-high",
+      "num": "128",
+      "title": "Function `shift` in `Well.sol` can be used by anyone to steal valuable ERC20's",
+      "accepted": false,
+      "pattern": "ORACLE_MANIPULATION",
+      "chars": 4136
+    },
+    {
+      "contest": "basin-high",
+      "num": "136",
+      "title": "Pumps are not updated in the shift() and sync() functions, allowing oracle manip",
+      "accepted": true,
+      "pattern": "ORACLE_MANIPULATION",
+      "chars": 4266
+    },
+    {
+      "contest": "basin-high",
+      "num": "137",
+      "title": "Possible to mint 0 Liquidity tokens",
+      "accepted": false,
+      "pattern": "MISSING_SLIPPAGE",
+      "chars": 1331
+    },
+    {
+      "contest": "basin-high",
+      "num": "138",
+      "title": "Issue: Lack of balance check could result in overdraft",
+      "accepted": false,
+      "pattern": "OTHER",
+      "chars": 2084
+    },
+    {
+      "contest": "basin-high",
+      "num": "143",
+      "title": "No permission check for removeLiquidity and removeLiquidityOneToken functions",
+      "accepted": false,
+      "pattern": "ACCESS_CONTROL",
+      "chars": 512
+    },
+    {
+      "contest": "basin-high",
+      "num": "145",
+      "title": "Potential draining Well via slippage imprecision and swapping the same token",
+      "accepted": false,
+      "pattern": "ROUNDING/PRECISION",
+      "chars": 1526
+    },
+    {
+      "contest": "basin-high",
+      "num": "146",
+      "title": "Stealing excess tokens from other users by either front-running `skim` function ",
+      "accepted": false,
+      "pattern": "FRONT_RUNNING/MEV",
+      "chars": 2996
+    },
+    {
+      "contest": "basin-high",
+      "num": "15",
+      "title": "Anyone can update reserves with arbitrary amounts",
+      "accepted": false,
+      "pattern": "ACCESS_CONTROL",
+      "chars": 792
+    },
+    {
+      "contest": "basin-high",
+      "num": "167",
+      "title": "Anyone can call Well.sol  shift() function and withdraw Contract's  extra ERC20 ",
+      "accepted": false,
+      "pattern": "REENTRANCY",
+      "chars": 7706
+    },
+    {
+      "contest": "basin-high",
+      "num": "16",
+      "title": "Critical slots being overwritten by bad designed _getSlotForAddress function",
+      "accepted": false,
+      "pattern": "ACCESS_CONTROL",
+      "chars": 1709
+    },
+    {
+      "contest": "basin-high",
+      "num": "177",
+      "title": "Pump is not updated in `shift` function",
+      "accepted": false,
+      "pattern": "REENTRANCY",
+      "chars": 3872
+    },
+    {
+      "contest": "basin-high",
+      "num": "178",
+      "title": "Absence of Function calcReserve(...) at src/interfaces/IBeanstalkWellFunction.so",
+      "accepted": false,
+      "pattern": "ACCESS_CONTROL",
+      "chars": 934
+    },
+    {
+      "contest": "basin-high",
+      "num": "185",
+      "title": "Well.sol contract allows anyone to add liquidity to tokens with fee-on-transfer ",
+      "accepted": false,
+      "pattern": "FEE_ON_TRANSFER",
+      "chars": 2068
+    },
+    {
+      "contest": "basin-high",
+      "num": "186",
+      "title": "`Well.shift` could suffer from front-running attack",
+      "accepted": false,
+      "pattern": "REENTRANCY",
+      "chars": 3618
+    },
+    {
+      "contest": "basin-high",
+      "num": "193",
+      "title": "A malicious user can steal a reserved token by using shift() function of Well.so",
+      "accepted": false,
+      "pattern": "REENTRANCY",
+      "chars": 5223
+    },
+    {
+      "contest": "basin-high",
+      "num": "204",
+      "title": "cumulativeReserves can be incorrect",
+      "accepted": false,
+      "pattern": "FRONT_RUNNING/MEV",
+      "chars": 1738
+    },
+    {
+      "contest": "basin-high",
+      "num": "209",
+      "title": "Anyone can call  Well.sol skim method and transfer excessive tokens to its addre",
+      "accepted": false,
+      "pattern": "REENTRANCY",
+      "chars": 5193
+    },
+    {
+      "contest": "basin-high",
+      "num": "214",
+      "title": "Well.sol::skim() anyone can transfer excess funds to their account.",
+      "accepted": false,
+      "pattern": "ACCESS_CONTROL",
+      "chars": 1956
+    },
+    {
+      "contest": "basin-high",
+      "num": "223",
+      "title": "Anyone can receive funds from the Well.sol contract, thus reducing the token/tok",
+      "accepted": false,
+      "pattern": "EXCESS_TOKENS",
+      "chars": 1151
+    },
+    {
+      "contest": "basin-high",
+      "num": "227",
+      "title": "You can expand your version of well in Aquifer.boreWell() with unpredictable res",
+      "accepted": false,
+      "pattern": "OTHER",
+      "chars": 659
+    },
+    {
+      "contest": "basin-high",
+      "num": "229",
+      "title": "Not all features of the protocol are used",
+      "accepted": false,
+      "pattern": "FLASH_LOAN",
+      "chars": 1075
+    },
+    {
+      "contest": "basin-high",
+      "num": "238",
+      "title": "Invariants doesn't checked",
+      "accepted": true,
+      "pattern": "OVERFLOW/CORRUPTION",
+      "chars": 1886
+    },
+    {
+      "contest": "basin-high",
+      "num": "243",
+      "title": "Possible to stop trading",
+      "accepted": true,
+      "pattern": "MISSING_SLIPPAGE",
+      "chars": 1478
+    },
+    {
+      "contest": "basin-high",
+      "num": "253",
+      "title": "TWAP can be easily manipulated by attacker through the sync() function, causing ",
+      "accepted": false,
+      "pattern": "ORACLE_MANIPULATION",
+      "chars": 3906
+    },
+    {
+      "contest": "basin-high",
+      "num": "254",
+      "title": "Implementation of Well shift() function allows attackers to completely manipulat",
+      "accepted": false,
+      "pattern": "ORACLE_MANIPULATION",
+      "chars": 5457
+    },
+    {
+      "contest": "basin-high",
+      "num": "265",
+      "title": "Well.sol::swapFrom() Missing Fee-on-Transfer Token Check",
+      "accepted": false,
+      "pattern": "FEE_ON_TRANSFER",
+      "chars": 1218
+    },
+    {
+      "contest": "basin-high",
+      "num": "275",
+      "title": "Flash loan price manipulation in `Well.sol`",
+      "accepted": false,
+      "pattern": "ORACLE_MANIPULATION",
+      "chars": 2965
+    },
+    {
+      "contest": "basin-high",
+      "num": "276",
+      "title": "the swapFrom() function allows the Fee On Transfer tokens and _setReserves doesn",
+      "accepted": true,
+      "pattern": "ACCESS_CONTROL",
+      "chars": 1950
+    },
+    {
+      "contest": "basin-high",
+      "num": "277",
+      "title": "Well.sol::addLiquidity() Unauthorized Liquidity Addition for Fee-on-Transfer Tok",
+      "accepted": false,
+      "pattern": "ACCESS_CONTROL",
+      "chars": 2883
+    },
+    {
+      "contest": "basin-high",
+      "num": "278",
+      "title": "Users can swap tokens through `shift()` function without `_updatePumps()`",
+      "accepted": false,
+      "pattern": "ORACLE_MANIPULATION",
+      "chars": 2463
+    },
+    {
+      "contest": "basin-high",
+      "num": "287",
+      "title": "The `MultiFlowPump.sol/update()` function will neither update nor revert any cal",
+      "accepted": true,
+      "pattern": "ORACLE_MANIPULATION",
+      "chars": 2343
+    },
+    {
+      "contest": "basin-high",
+      "num": "28",
+      "title": "liquidity drain shifting wrong token",
+      "accepted": false,
+      "pattern": "OVERFLOW/CORRUPTION",
+      "chars": 2719
+    },
+    {
+      "contest": "basin-high",
+      "num": "296",
+      "title": "Funds added to reserves through `sync` are accidentally transferred out to users",
+      "accepted": false,
+      "pattern": "OVERFLOW/CORRUPTION",
+      "chars": 4155
+    },
+    {
+      "contest": "basin-high",
+      "num": "29",
+      "title": "No any access control for some external functions in Well.sol",
+      "accepted": false,
+      "pattern": "ACCESS_CONTROL",
+      "chars": 2549
+    },
+    {
+      "contest": "basin-high",
+      "num": "33",
+      "title": "check missed in the `_swapFrom` to prevent sending tokens to the reserves direct",
+      "accepted": true,
+      "pattern": "REENTRANCY",
+      "chars": 3676
+    },
+    {
+      "contest": "basin-high",
+      "num": "38",
+      "title": "Not checking values after performing swap",
+      "accepted": false,
+      "pattern": "REENTRANCY",
+      "chars": 2657
+    },
+    {
+      "contest": "basin-high",
+      "num": "45",
+      "title": "Lack of Validation in Aquifer Contract's boreWell Function for Implementation Ad",
+      "accepted": false,
+      "pattern": "ACCESS_CONTROL",
+      "chars": 1838
+    },
+    {
+      "contest": "basin-high",
+      "num": "47",
+      "title": "Maliciuos user can get free tokens from Well contract",
+      "accepted": false,
+      "pattern": "REENTRANCY",
+      "chars": 5821
+    },
+    {
+      "contest": "basin-high",
+      "num": "57",
+      "title": "Users can bypass reserve update to MultiFlowPump by directly trading through shi",
+      "accepted": false,
+      "pattern": "REENTRANCY",
+      "chars": 3313
+    },
+    {
+      "contest": "basin-high",
+      "num": "61",
+      "title": "attacker can swap zero amount of token A to get some amount of token B",
+      "accepted": false,
+      "pattern": "REENTRANCY",
+      "chars": 6192
+    },
+    {
+      "contest": "basin-high",
+      "num": "65",
+      "title": "the function `swapTo` did not work as expected",
+      "accepted": false,
+      "pattern": "REENTRANCY",
+      "chars": 7371
+    },
+    {
+      "contest": "basin-high",
+      "num": "67",
+      "title": "ATTACKER CAN DRAIN THE POOL REMOVING LIQUDITY DUE CROSS FUNCTION REENTRENCY",
+      "accepted": false,
+      "pattern": "REENTRANCY",
+      "chars": 8033
+    },
+    {
+      "contest": "basin-high",
+      "num": "77",
+      "title": "Incorrect Comparison in Well Contract's init Function",
+      "accepted": false,
+      "pattern": "OVERFLOW/CORRUPTION",
+      "chars": 3521
+    },
+    {
+      "contest": "basin-high",
+      "num": "88",
+      "title": "Incomplete implementation of interface",
+      "accepted": false,
+      "pattern": "OTHER",
+      "chars": 1862
+    },
+    {
+      "contest": "basin-high",
+      "num": "91",
+      "title": "Non compliance with interface contract",
+      "accepted": false,
+      "pattern": "OTHER",
+      "chars": 1207
+    },
+    {
+      "contest": "basin-high",
+      "num": "99",
+      "title": "byteReserves will be different in SMA compare to EMA & Resistant Last Values",
+      "accepted": false,
+      "pattern": "FRONT_RUNNING/MEV",
+      "chars": 2004
+    },
+    {
+      "contest": "basin-medium",
+      "num": "102",
+      "title": "In Well.sol, Calls inside loops that may address DoS",
+      "accepted": false,
+      "pattern": "DOS/LIVENESS",
+      "chars": 2469
+    },
+    {
+      "contest": "basin-medium",
+      "num": "108",
+      "title": "Transferout exclusive feeOnTransfer tokens will run out of well",
+      "accepted": true,
+      "pattern": "EXCESS_TOKENS",
+      "chars": 1195
+    },
+    {
+      "contest": "basin-medium",
+      "num": "10",
+      "title": "QA Report",
+      "accepted": true,
+      "pattern": "OTHER",
+      "chars": 142
+    },
+    {
+      "contest": "basin-medium",
+      "num": "113",
+      "title": "Frontrunning possible with boreWell creation in Aquifer.sol",
+      "accepted": false,
+      "pattern": "REENTRANCY",
+      "chars": 3933
+    },
+    {
+      "contest": "basin-medium",
+      "num": "123",
+      "title": "Imbalanced liquidity token amounts can allow users to very easily manipulate pri",
+      "accepted": false,
+      "pattern": "ORACLE_MANIPULATION",
+      "chars": 1107
+    },
+    {
+      "contest": "basin-medium",
+      "num": "12",
+      "title": "User balance was not updated during minting and burning",
+      "accepted": false,
+      "pattern": "OVERFLOW/CORRUPTION",
+      "chars": 2618
+    },
+    {
+      "contest": "basin-medium",
+      "num": "130",
+      "title": "possible div by zero can cause panic error in calcLPTokenUnderlying() of Proport",
+      "accepted": true,
+      "pattern": "OVERFLOW/CORRUPTION",
+      "chars": 2264
+    },
+    {
+      "contest": "basin-medium",
+      "num": "139",
+      "title": "Fee-on-transfer",
+      "accepted": false,
+      "pattern": "FEE_ON_TRANSFER",
+      "chars": 3055
+    },
+    {
+      "contest": "basin-medium",
+      "num": "140",
+      "title": "ABI encodePacked Collision",
+      "accepted": false,
+      "pattern": "OVERFLOW/CORRUPTION",
+      "chars": 3459
+    },
+    {
+      "contest": "basin-medium",
+      "num": "159",
+      "title": "Aquifer#boreWell:  Malicious actor can frontrun well creation",
+      "accepted": false,
+      "pattern": "FRONT_RUNNING/MEV",
+      "chars": 1284
+    },
+    {
+      "contest": "basin-medium",
+      "num": "168",
+      "title": "Aquifer is vulnerable to Metamorphic Contract Attack",
+      "accepted": true,
+      "pattern": "REENTRANCY",
+      "chars": 4150
+    },
+    {
+      "contest": "basin-medium",
+      "num": "169",
+      "title": "[MEDIUM] MultiFlowPump.sol - Missing check for BLOCK_TIME == 0 could cause pool ",
+      "accepted": true,
+      "pattern": "MISSING_CHECK",
+      "chars": 1472
+    },
+    {
+      "contest": "basin-medium",
+      "num": "170",
+      "title": "`removeLiquidity`   may revert  if  out tokens contains feeontransfer token",
+      "accepted": false,
+      "pattern": "OTHER",
+      "chars": 848
+    },
+    {
+      "contest": "basin-medium",
+      "num": "172",
+      "title": "Improper Validation Of create2 Return Value can cause inexisitent new well contr",
+      "accepted": false,
+      "pattern": "NON_DETERMINISM",
+      "chars": 2057
+    },
+    {
+      "contest": "basin-medium",
+      "num": "173",
+      "title": "QA Report",
+      "accepted": false,
+      "pattern": "OTHER",
+      "chars": 145
+    },
+    {
+      "contest": "basin-medium",
+      "num": "174",
+      "title": "The `expire()` modifier is is useless because of just checkl `block.timestamp > ",
+      "accepted": false,
+      "pattern": "REENTRANCY",
+      "chars": 1428
+    },
+    {
+      "contest": "basin-medium",
+      "num": "176",
+      "title": "Treating of BLOCK_TIME as permanent will cause serious economic flaws in the ora",
+      "accepted": true,
+      "pattern": "ORACLE_MANIPULATION",
+      "chars": 1771
+    },
+    {
+      "contest": "basin-medium",
+      "num": "179",
+      "title": "Absence of Error Handling when Output Amount Request is larger than Reserve",
+      "accepted": false,
+      "pattern": "OTHER",
+      "chars": 691
+    },
+    {
+      "contest": "basin-medium",
+      "num": "17",
+      "title": "division before multiplication in readLastReserves() of LibLastReserveBytes.sol",
+      "accepted": false,
+      "pattern": "ROUNDING/PRECISION",
+      "chars": 1520
+    },
+    {
+      "contest": "basin-medium",
+      "num": "181",
+      "title": "boreWell can be frontrun/DoS-d",
+      "accepted": true,
+      "pattern": "FRONT_RUNNING/MEV",
+      "chars": 3104
+    },
+    {
+      "contest": "basin-medium",
+      "num": "187",
+      "title": "`Aquifer.boreWell` can be front-runned with malicious `initFunctionCall`",
+      "accepted": false,
+      "pattern": "REENTRANCY",
+      "chars": 3482
+    },
+    {
+      "contest": "basin-medium",
+      "num": "18",
+      "title": "precision error/rounding issue in readUint128() of LibBytes.sol",
+      "accepted": false,
+      "pattern": "ROUNDING/PRECISION",
+      "chars": 1638
+    },
+    {
+      "contest": "basin-medium",
+      "num": "190",
+      "title": "There is a large precision error in sqrt calculation of lp",
+      "accepted": true,
+      "pattern": "ROUNDING/PRECISION",
+      "chars": 1331
+    },
+    {
+      "contest": "basin-medium",
+      "num": "191",
+      "title": "The constant product invariant can be broken.",
+      "accepted": true,
+      "pattern": "REENTRANCY",
+      "chars": 4472
+    },
+    {
+      "contest": "basin-medium",
+      "num": "192",
+      "title": "No fee swap is possible through `addLiquidity` and `removeLiquidityImbalanced`",
+      "accepted": false,
+      "pattern": "OVERFLOW/CORRUPTION",
+      "chars": 1519
+    },
+    {
+      "contest": "basin-medium",
+      "num": "19",
+      "title": "precision/rounding error in readBytes16() of LibBytes16.sol",
+      "accepted": false,
+      "pattern": "ROUNDING/PRECISION",
+      "chars": 1648
+    },
+    {
+      "contest": "basin-medium",
+      "num": "207",
+      "title": "pump reserves will be corrupted if numberOfReserves become less",
+      "accepted": false,
+      "pattern": "OVERFLOW/CORRUPTION",
+      "chars": 1214
+    },
+    {
+      "contest": "basin-medium",
+      "num": "210",
+      "title": "Well.sol#removeLiquidityImbalanced - Handling Excess Reserves in\u00a0removeLiquidity",
+      "accepted": true,
+      "pattern": "OVERFLOW/CORRUPTION",
+      "chars": 2313
+    },
+    {
+      "contest": "basin-medium",
+      "num": "217",
+      "title": "Predictability of cloned address may be susceptible to frontrunning",
+      "accepted": false,
+      "pattern": "ACCESS_CONTROL",
+      "chars": 1787
+    },
+    {
+      "contest": "basin-medium",
+      "num": "221",
+      "title": "Pool address predictability creates many problems",
+      "accepted": false,
+      "pattern": "DOS/LIVENESS",
+      "chars": 1516
+    },
+    {
+      "contest": "basin-medium",
+      "num": "228",
+      "title": "The existence of Pump may hinder large swaps or swaps from a low liquidity pool",
+      "accepted": false,
+      "pattern": "REENTRANCY",
+      "chars": 5674
+    },
+    {
+      "contest": "basin-medium",
+      "num": "235",
+      "title": "Wherever possible, _safeMint() should be used rather than _mint()",
+      "accepted": false,
+      "pattern": "OTHER",
+      "chars": 787
+    },
+    {
+      "contest": "basin-medium",
+      "num": "241",
+      "title": "First liquidity provider can break minting of shares",
+      "accepted": false,
+      "pattern": "OVERFLOW/CORRUPTION",
+      "chars": 1339
+    },
+    {
+      "contest": "basin-medium",
+      "num": "248",
+      "title": "Subsequent liquidity providers will suffer from the loss of funds",
+      "accepted": false,
+      "pattern": "ROUNDING/PRECISION",
+      "chars": 1835
+    },
+    {
+      "contest": "basin-medium",
+      "num": "255",
+      "title": "Long term denial of service due to lack of fees in Well",
+      "accepted": true,
+      "pattern": "ROUNDING/PRECISION",
+      "chars": 1895
+    },
+    {
+      "contest": "basin-medium",
+      "num": "259",
+      "title": "Due to bit-shifting errors, reserve amounts in the pump will be corrupted, resul",
+      "accepted": true,
+      "pattern": "ORACLE_MANIPULATION",
+      "chars": 2643
+    },
+    {
+      "contest": "basin-medium",
+      "num": "25",
+      "title": "Users have the ability to transfer excess tokens to their own account.",
+      "accepted": true,
+      "pattern": "REENTRANCY",
+      "chars": 3410
+    },
+    {
+      "contest": "basin-medium",
+      "num": "260",
+      "title": "Due to slot confusion, reserve amounts in the pump will be corrupted, resulting ",
+      "accepted": true,
+      "pattern": "ORACLE_MANIPULATION",
+      "chars": 3161
+    },
+    {
+      "contest": "basin-medium",
+      "num": "263",
+      "title": "Memory corruption in getBytes32FromBytes() can likely lead to loss of funds",
+      "accepted": true,
+      "pattern": "OVERFLOW/CORRUPTION",
+      "chars": 2895
+    },
+    {
+      "contest": "basin-medium",
+      "num": "26",
+      "title": "The `swapTo` function in `Well.sol` is susceptible to underflow occurrences.",
+      "accepted": false,
+      "pattern": "REENTRANCY",
+      "chars": 2530
+    },
+    {
+      "contest": "basin-medium",
+      "num": "274",
+      "title": "Possible Issues Related to Well Initial State",
+      "accepted": true,
+      "pattern": "ORACLE_MANIPULATION",
+      "chars": 1087
+    },
+    {
+      "contest": "basin-medium",
+      "num": "282",
+      "title": "Potential token duplication validation bypass",
+      "accepted": true,
+      "pattern": "REENTRANCY",
+      "chars": 1980
+    },
+    {
+      "contest": "basin-medium",
+      "num": "283",
+      "title": "Possible Front Running on the Permit function",
+      "accepted": false,
+      "pattern": "FRONT_RUNNING/MEV",
+      "chars": 1454
+    },
+    {
+      "contest": "basin-medium",
+      "num": "284",
+      "title": "bad actore can increase gas usage in swapfrom function",
+      "accepted": false,
+      "pattern": "OVERFLOW/CORRUPTION",
+      "chars": 1076
+    },
+    {
+      "contest": "basin-medium",
+      "num": "288",
+      "title": "NO ACCESS CONTROL IN THE `Well.skim()` EXTERNAL FUNCTION",
+      "accepted": false,
+      "pattern": "REENTRANCY",
+      "chars": 1405
+    },
+    {
+      "contest": "basin-medium",
+      "num": "290",
+      "title": "Inflation attack in well",
+      "accepted": false,
+      "pattern": "FRONT_RUNNING/MEV",
+      "chars": 1438
+    },
+    {
+      "contest": "basin-medium",
+      "num": "291",
+      "title": "`Well.skim()` TRANSACTION CAN BE FRONT RUN BY `Well.sync()` TRANSACTION THUS MAK",
+      "accepted": true,
+      "pattern": "REENTRANCY",
+      "chars": 2438
+    },
+    {
+      "contest": "basin-medium",
+      "num": "293",
+      "title": "_addLiquidity() function will revert in first call",
+      "accepted": false,
+      "pattern": "OVERFLOW/CORRUPTION",
+      "chars": 1154
+    },
+    {
+      "contest": "basin-medium",
+      "num": "297",
+      "title": "Upgraded Q -> 2 from #180 [1691271324742]",
+      "accepted": false,
+      "pattern": "STORAGE_CORRUPTION",
+      "chars": 147
+    },
+    {
+      "contest": "basin-medium",
+      "num": "298",
+      "title": "Upgraded Q -> 2 from #116 [1691272104948]",
+      "accepted": false,
+      "pattern": "OTHER",
+      "chars": 205
+    },
+    {
+      "contest": "basin-medium",
+      "num": "2",
+      "title": "_getArgBytes in ClonePlus.sol (used by Well.sol) overflows & corrupts memory",
+      "accepted": true,
+      "pattern": "OVERFLOW/CORRUPTION",
+      "chars": 2093
+    },
+    {
+      "contest": "basin-medium",
+      "num": "32",
+      "title": "possible precision/rounding error in calcReserve() of ConstantProduct2.sol",
+      "accepted": false,
+      "pattern": "ROUNDING/PRECISION",
+      "chars": 1692
+    },
+    {
+      "contest": "basin-medium",
+      "num": "39",
+      "title": "ERC-20 other than the well's supported ones can't be rescued",
+      "accepted": true,
+      "pattern": "EXCESS_TOKENS",
+      "chars": 811
+    },
+    {
+      "contest": "basin-medium",
+      "num": "40",
+      "title": "Bored wells can receive Ether despite lack of any rescue functionality",
+      "accepted": false,
+      "pattern": "MISSING_REFUND",
+      "chars": 1057
+    },
+    {
+      "contest": "basin-medium",
+      "num": "46",
+      "title": "Immutable values are not maintained on upgrade",
+      "accepted": false,
+      "pattern": "OTHER",
+      "chars": 545
+    },
+    {
+      "contest": "basin-medium",
+      "num": "48",
+      "title": "USDC and USDT have 6 decimals, but on other chains have 18 decimals",
+      "accepted": false,
+      "pattern": "OTHER",
+      "chars": 447
+    },
+    {
+      "contest": "basin-medium",
+      "num": "49",
+      "title": "A malicious user can call boreWell() function with wrong input and skip the If-s",
+      "accepted": false,
+      "pattern": "OTHER",
+      "chars": 817
+    },
+    {
+      "contest": "basin-medium",
+      "num": "50",
+      "title": "Tokens can stuck in the contract if user will supply only one token type for ini",
+      "accepted": true,
+      "pattern": "ROUNDING/PRECISION",
+      "chars": 4273
+    },
+    {
+      "contest": "basin-medium",
+      "num": "53",
+      "title": "A malicious user in `Well.sol` can use addLiquidity with fee on transfer",
+      "accepted": false,
+      "pattern": "FEE_ON_TRANSFER",
+      "chars": 460
+    },
+    {
+      "contest": "basin-medium",
+      "num": "55",
+      "title": "Single hardcoded cap used for multiple tokens in a pump causing some assets to b",
+      "accepted": true,
+      "pattern": "ORACLE_MANIPULATION",
+      "chars": 7567
+    },
+    {
+      "contest": "basin-medium",
+      "num": "56",
+      "title": "overflowing uint40 lastTimestamp",
+      "accepted": false,
+      "pattern": "OVERFLOW/CORRUPTION",
+      "chars": 522
+    },
+    {
+      "contest": "basin-medium",
+      "num": "62",
+      "title": "mismatching in the indexes may cause the function `removeLiquidty` to act strang",
+      "accepted": false,
+      "pattern": "REENTRANCY",
+      "chars": 1895
+    },
+    {
+      "contest": "basin-medium",
+      "num": "71",
+      "title": "Incorrect Calculation of Reserve in ConstantProduct2's calcReserve Function",
+      "accepted": false,
+      "pattern": "ROUNDING/PRECISION",
+      "chars": 2495
+    },
+    {
+      "contest": "basin-medium",
+      "num": "72",
+      "title": "Incorrect Reserve Capping in MultiFlowPump Contract",
+      "accepted": true,
+      "pattern": "OVERFLOW/CORRUPTION",
+      "chars": 3369
+    },
+    {
+      "contest": "basin-medium",
+      "num": "75",
+      "title": "Incorrect Storage of Reserves in LibBytes.storeUint128",
+      "accepted": true,
+      "pattern": "OVERFLOW/CORRUPTION",
+      "chars": 3424
+    },
+    {
+      "contest": "basin-medium",
+      "num": "79",
+      "title": "Well.sol - flashloan liquidity manipulation can lead to a DoS of user transactio",
+      "accepted": false,
+      "pattern": "FLASH_LOAN",
+      "chars": 3524
+    },
+    {
+      "contest": "basin-medium",
+      "num": "7",
+      "title": "staticall success value not checked",
+      "accepted": false,
+      "pattern": "OVERFLOW/CORRUPTION",
+      "chars": 1014
+    },
+    {
+      "contest": "basin-medium",
+      "num": "82",
+      "title": "addLiquidity Sandwich Attack for unbalanced token deposits",
+      "accepted": true,
+      "pattern": "FRONT_RUNNING/MEV",
+      "chars": 4015
+    },
+    {
+      "contest": "basin-medium",
+      "num": "83",
+      "title": "Recommended use of the shift function leads to loss of funds by front running at",
+      "accepted": false,
+      "pattern": "FRONT_RUNNING/MEV",
+      "chars": 1740
+    },
+    {
+      "contest": "basin-medium",
+      "num": "87",
+      "title": "Invalid comparison of signed and unsigned bytes16 values in _capReserve function",
+      "accepted": false,
+      "pattern": "OTHER",
+      "chars": 1269
+    },
+    {
+      "contest": "basin-medium",
+      "num": "94",
+      "title": "M-01 SWC-113 DoS with Failed Call",
+      "accepted": false,
+      "pattern": "OVERFLOW/CORRUPTION",
+      "chars": 3535
+    },
+    {
+      "contest": "basin-medium",
+      "num": "96",
+      "title": "Evaluation of Condition in storeUint128 Function",
+      "accepted": false,
+      "pattern": "OVERFLOW/CORRUPTION",
+      "chars": 1307
+    },
+    {
+      "contest": "basin-medium",
+      "num": "97",
+      "title": "miss check for _maxPercentIncrease to not be to high",
+      "accepted": false,
+      "pattern": "FRONT_RUNNING/MEV",
+      "chars": 846
+    },
+    {
+      "contest": "basin-medium",
+      "num": "9",
+      "title": "Lack of user input validation in many places",
+      "accepted": false,
+      "pattern": "OTHER",
+      "chars": 811
+    },
+    {
+      "contest": "2024-10-ronin",
+      "num": "12",
+      "title": "V3SwapRouter.V3SwapExactOutput() has the wrong implementation since it applies t",
+      "accepted": true,
+      "pattern": "MISSING_SLIPPAGE",
+      "chars": 2608
+    },
+    {
+      "contest": "2024-10-ronin",
+      "num": "27",
+      "title": "Use of `slot0` to get `sqrtPriceX96` can lead to price manipulation.",
+      "accepted": true,
+      "pattern": "ORACLE_MANIPULATION",
+      "chars": 1430
+    },
+    {
+      "contest": "2024-10-ronin",
+      "num": "29",
+      "title": "When minting or increasing liquidity through NonfungiblePositionManager, excess ",
+      "accepted": true,
+      "pattern": "MISSING_REFUND",
+      "chars": 4331
+    },
+    {
+      "contest": "2024-10-ronin",
+      "num": "2",
+      "title": "Liquidity migrations from v2 to v3 for LPers will not work",
+      "accepted": false,
+      "pattern": "INTEREST/REWARD",
+      "chars": 4040
+    },
+    {
+      "contest": "2024-10-ronin",
+      "num": "38",
+      "title": "V3factory will fail to initialize because of a wrong check",
+      "accepted": false,
+      "pattern": "DOS/LIVENESS",
+      "chars": 2004
+    },
+    {
+      "contest": "2024-10-ronin",
+      "num": "40",
+      "title": "Wrong and unexpected parameters passed to constructor in `KatanaV3PoolProxy`.",
+      "accepted": false,
+      "pattern": "OVERFLOW/CORRUPTION",
+      "chars": 1532
+    },
+    {
+      "contest": "2024-10-ronin",
+      "num": "41",
+      "title": "Wrong Implementation, `KatanaV3Factory` never be initialized.",
+      "accepted": false,
+      "pattern": "DOS/LIVENESS",
+      "chars": 1510
+    },
+    {
+      "contest": "2024-10-ronin",
+      "num": "43",
+      "title": "KatanaGovernance::_isAuthorized function allows user to perform action even afte",
+      "accepted": false,
+      "pattern": "ACCESS_CONTROL",
+      "chars": 1138
+    },
+    {
+      "contest": "2024-10-ronin",
+      "num": "45",
+      "title": "Authorization Bypass Due to Expired Timestamp Check",
+      "accepted": false,
+      "pattern": "ACCESS_CONTROL",
+      "chars": 1154
+    },
+    {
+      "contest": "2024-10-ronin",
+      "num": "50",
+      "title": "Katana Governance will never be able to initialize the V3factory because of a wr",
+      "accepted": false,
+      "pattern": "DOS/LIVENESS",
+      "chars": 3476
+    },
+    {
+      "contest": "2024-10-ronin",
+      "num": "60",
+      "title": "Unauthorized Liquidity Manipulation in NonfungiblePositionManager Contract Due t",
+      "accepted": false,
+      "pattern": "ROUNDING/PRECISION",
+      "chars": 5000
+    },
+    {
+      "contest": "2024-10-ronin",
+      "num": "61",
+      "title": "Precision Loss in Oracle's Tick Cumulative Calculation Due to Integer Division O",
+      "accepted": false,
+      "pattern": "ORACLE_MANIPULATION",
+      "chars": 5054
+    },
+    {
+      "contest": "2024-10-ronin",
+      "num": "67",
+      "title": "Missing authorization check in `increaseLiquidity` permits unauthorized liquidit",
+      "accepted": false,
+      "pattern": "ACCESS_CONTROL",
+      "chars": 4046
+    },
+    {
+      "contest": "2024-10-ronin",
+      "num": "68",
+      "title": "Use of `slot0` to get `sqrtPriceLimitX96` can lead to price manipulation.",
+      "accepted": false,
+      "pattern": "ORACLE_MANIPULATION",
+      "chars": 3211
+    },
+    {
+      "contest": "2024-10-ronin",
+      "num": "70",
+      "title": "Improper Initialization Logic in KatanaV3Factory Causes Failure/Dos in calling `",
+      "accepted": false,
+      "pattern": "DOS/LIVENESS",
+      "chars": 3193
+    },
+    {
+      "contest": "2024-10-ronin",
+      "num": "78",
+      "title": "Unauthorized Liquidity Increase in `NonfungiblePositionManager`",
+      "accepted": false,
+      "pattern": "ACCESS_CONTROL",
+      "chars": 5111
+    },
+    {
+      "contest": "2024-10-ronin",
+      "num": "8",
+      "title": "Unvalidated `msg.value` in `AggregateRouter::execute()` Allows Unauthorized `WRA",
+      "accepted": true,
+      "pattern": "ACCESS_CONTROL",
+      "chars": 2790
+    },
+    {
+      "contest": "2024-10-loopfi",
+      "num": "19",
+      "title": "Liquidity pool is not adjusting the interest rate on healthy repayment profit, w",
+      "accepted": true,
+      "pattern": "REENTRANCY",
+      "chars": 5018
+    },
+    {
+      "contest": "2024-10-loopfi",
+      "num": "22",
+      "title": "SwapAction's newly implemented Kyber swaps lack slippage protection",
+      "accepted": true,
+      "pattern": "OVERFLOW/CORRUPTION",
+      "chars": 5158
+    },
+    {
+      "contest": "2024-10-loopfi",
+      "num": "25",
+      "title": "Rewards might be lost due to the error that _updateRewardIndex() might advance l",
+      "accepted": true,
+      "pattern": "ROUNDING/PRECISION",
+      "chars": 3100
+    },
+    {
+      "contest": "2024-10-loopfi",
+      "num": "28",
+      "title": "Malicious users can cause reward loss for position owners",
+      "accepted": false,
+      "pattern": "ACCESS_CONTROL",
+      "chars": 3219
+    },
+    {
+      "contest": "2024-10-loopfi",
+      "num": "29",
+      "title": "`PoolV3:: repayCreditAccount` is invalidly handling loss when `CDPVault:: liquid",
+      "accepted": false,
+      "pattern": "INTEREST/REWARD",
+      "chars": 2650
+    },
+    {
+      "contest": "2024-10-loopfi",
+      "num": "2",
+      "title": "`CDPVault.sol#liquidatePositionBadDebt()` does correctly handle profit and loss",
+      "accepted": true,
+      "pattern": "REENTRANCY",
+      "chars": 3366
+    },
+    {
+      "contest": "2024-10-kleidi",
+      "num": "10",
+      "title": "Hot Signer Can Pass Arbitrary Data to Partially Whitelisted Functions",
+      "accepted": true,
+      "pattern": "ACCESS_CONTROL",
+      "chars": 5330
+    },
+    {
+      "contest": "2024-10-kleidi",
+      "num": "27",
+      "title": "Immutable Recovery threshold limits flexibility, risking loss of Safe access in ",
+      "accepted": false,
+      "pattern": "OTHER",
+      "chars": 2509
+    },
+    {
+      "contest": "2024-10-kleidi",
+      "num": "30",
+      "title": "`executeRecoverySpell()` can revert due to check in `OwnerManager.swapOwner()` a",
+      "accepted": false,
+      "pattern": "ACCESS_CONTROL",
+      "chars": 5132
+    },
+    {
+      "contest": "2024-10-kleidi",
+      "num": "33",
+      "title": "The same address in original owner set and recovery owner set can lead to perman",
+      "accepted": false,
+      "pattern": "DOS/LIVENESS",
+      "chars": 2882
+    },
+    {
+      "contest": "2024-10-kleidi",
+      "num": "39",
+      "title": "Missing New Recovery Spell Replacement in the Recovery Process, To Ensure Safe C",
+      "accepted": false,
+      "pattern": "OVERFLOW/CORRUPTION",
+      "chars": 4711
+    },
+    {
+      "contest": "2024-10-kleidi",
+      "num": "40",
+      "title": "Missing Pause Time Checks in `_updatePauseDuration` Function",
+      "accepted": false,
+      "pattern": "ACCESS_CONTROL",
+      "chars": 3109
+    },
+    {
+      "contest": "nibiru-high",
+      "num": "10",
+      "title": "Vulnerability in app/ante/commission.go: Bypassing AnteHandler for Maximum Commi",
+      "accepted": true,
+      "pattern": "INTEREST/REWARD",
+      "chars": 9301
+    },
+    {
+      "contest": "nibiru-high",
+      "num": "16",
+      "title": "Adversary can drain the token holders due to missing signature validation",
+      "accepted": true,
+      "pattern": "FEE_ON_TRANSFER",
+      "chars": 7728
+    },
+    {
+      "contest": "nibiru-high",
+      "num": "18",
+      "title": "Malicious users will transfer funds directly to module accounts causing potentia",
+      "accepted": true,
+      "pattern": "ACCESS_CONTROL",
+      "chars": 3813
+    },
+    {
+      "contest": "nibiru-high",
+      "num": "19",
+      "title": "Arbitrary minting of tokens",
+      "accepted": true,
+      "pattern": "ACCESS_CONTROL",
+      "chars": 1908
+    },
+    {
+      "contest": "nibiru-high",
+      "num": "22",
+      "title": "A malicious contract can halt the chain by calling FunToken.sendToBank recursive",
+      "accepted": false,
+      "pattern": "GAS_ISSUE",
+      "chars": 2287
+    },
+    {
+      "contest": "nibiru-high",
+      "num": "24",
+      "title": "Inconsistent State Management: EthereumTx StateDB Overriding CallContract Result",
+      "accepted": true,
+      "pattern": "OVERFLOW/CORRUPTION",
+      "chars": 3070
+    },
+    {
+      "contest": "nibiru-high",
+      "num": "25",
+      "title": "Gas is not consumed when precompile method fail, allowing resource consumption r",
+      "accepted": true,
+      "pattern": "ORACLE_MANIPULATION",
+      "chars": 2371
+    },
+    {
+      "contest": "nibiru-high",
+      "num": "26",
+      "title": "Unlimited Nibi could be minted because evm and bank balance are not synced when ",
+      "accepted": true,
+      "pattern": "OVERFLOW/CORRUPTION",
+      "chars": 6528
+    },
+    {
+      "contest": "nibiru-high",
+      "num": "27",
+      "title": "Bypassing Validation for Nested MsgEthereumTx in MsgExec",
+      "accepted": true,
+      "pattern": "ACCESS_CONTROL",
+      "chars": 6700
+    },
+    {
+      "contest": "nibiru-high",
+      "num": "32",
+      "title": "StateDB Persistence in Read-Only Operations within Bank Module State Can Lead to",
+      "accepted": true,
+      "pattern": "NON_DETERMINISM",
+      "chars": 1473
+    },
+    {
+      "contest": "nibiru-high",
+      "num": "34",
+      "title": "Non-Deterministic Iteration in ForEachStorage",
+      "accepted": true,
+      "pattern": "OVERFLOW/CORRUPTION",
+      "chars": 3383
+    },
+    {
+      "contest": "nibiru-high",
+      "num": "37",
+      "title": "Missing replay protection could lead to Double-spending and unauthorized re-exec",
+      "accepted": true,
+      "pattern": "ACCESS_CONTROL",
+      "chars": 1263
+    },
+    {
+      "contest": "nibiru-high",
+      "num": "38",
+      "title": "Inadequate validation for EVM messages could lead to unauthorized EVM execution ",
+      "accepted": true,
+      "pattern": "ACCESS_CONTROL",
+      "chars": 1899
+    },
+    {
+      "contest": "nibiru-high",
+      "num": "41",
+      "title": "Incorrect Handling of weiInt in the ParseWeiAsMultipleOfMicronibi Function in x/",
+      "accepted": false,
+      "pattern": "OVERFLOW/CORRUPTION",
+      "chars": 5881
+    },
+    {
+      "contest": "nibiru-high",
+      "num": "43",
+      "title": "Missing Validity Check for the admin Parameter in the instantiate Function of x/",
+      "accepted": true,
+      "pattern": "ACCESS_CONTROL",
+      "chars": 5728
+    },
+    {
+      "contest": "nibiru-high",
+      "num": "4",
+      "title": "Hardcoded gas used in ERC20 queries allows for block production halt from infini",
+      "accepted": true,
+      "pattern": "ACCESS_CONTROL",
+      "chars": 4944
+    },
+    {
+      "contest": "nibiru-high",
+      "num": "56",
+      "title": "Irreversible state changes due to missing rollback mechanism in coin-to-EVM conv",
+      "accepted": true,
+      "pattern": "FEE_ON_TRANSFER",
+      "chars": 3896
+    },
+    {
+      "contest": "nibiru-high",
+      "num": "57",
+      "title": "Non-deterministic gas consumption due to shared StateDB pointer in bank keeper a",
+      "accepted": true,
+      "pattern": "INTEREST/REWARD",
+      "chars": 3580
+    },
+    {
+      "contest": "nibiru-high",
+      "num": "58",
+      "title": "DOS or OOM Due to Unrestricted String Length in x/evm/precompile/wasm.go",
+      "accepted": true,
+      "pattern": "OVERFLOW/CORRUPTION",
+      "chars": 4542
+    },
+    {
+      "contest": "nibiru-high",
+      "num": "59",
+      "title": "The Iteration Over the Map in x/evm/keeper/precompiles.go is Non-Deterministic",
+      "accepted": true,
+      "pattern": "ORACLE_MANIPULATION",
+      "chars": 2980
+    },
+    {
+      "contest": "nibiru-high",
+      "num": "60",
+      "title": "Vesting Account Preemption Attack Preventing Future Contract Deployment",
+      "accepted": true,
+      "pattern": "ACCESS_CONTROL",
+      "chars": 11876
+    },
+    {
+      "contest": "nibiru-high",
+      "num": "67",
+      "title": "Fee-on-Transfer Tokens Incur Unexpected Double Fees During Round-Trip Conversion",
+      "accepted": false,
+      "pattern": "ROUNDING/PRECISION",
+      "chars": 10430
+    },
+    {
+      "contest": "nibiru-high",
+      "num": "73",
+      "title": "Only hardcoded base fee is deducted from the user's account which is not correct",
+      "accepted": true,
+      "pattern": "GAS_ISSUE",
+      "chars": 2506
+    },
+    {
+      "contest": "nibiru-high",
+      "num": "74",
+      "title": "MaxPriorityFeePerGas and MaxFeePerGas are specified for a user which is not corr",
+      "accepted": true,
+      "pattern": "MISSING_REFUND",
+      "chars": 2292
+    },
+    {
+      "contest": "nibiru-high",
+      "num": "75",
+      "title": "effectiveGasPriceDec does not depend on the user and uses hardcoded parameter le",
+      "accepted": true,
+      "pattern": "DOS/LIVENESS",
+      "chars": 2655
+    },
+    {
+      "contest": "nibiru-high",
+      "num": "78",
+      "title": "fullRefundLeftoverGas is always set to false as it's not checked if the message ",
+      "accepted": true,
+      "pattern": "MISSING_REFUND",
+      "chars": 1809
+    },
+    {
+      "contest": "nibiru-high",
+      "num": "84",
+      "title": "Nonce handling behavior is different from the one specified in the EVM",
+      "accepted": false,
+      "pattern": "SIGNATURE/REPLAY",
+      "chars": 2069
+    },
+    {
+      "contest": "nibiru-high",
+      "num": "9",
+      "title": "remote Denial of Service issue in nibid",
+      "accepted": true,
+      "pattern": "OVERFLOW/CORRUPTION",
+      "chars": 1592
+    }
+  ]
+}

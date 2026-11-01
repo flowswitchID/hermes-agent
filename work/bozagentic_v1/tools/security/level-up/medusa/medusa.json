@@ -1,0 +1,17 @@
+{
+  "fuzzing": {
+    "workers": 4,
+    "testLimit": 50000,
+    "callSequenceLength": 50,
+    "targetContracts": ["ExchangeHarness"],
+    "corpusDirectory": "corpus",
+    "coverageEnabled": true,
+    "senderAddresses": ["0x10000", "0x20000", "0x30000"]
+  },
+  "compilation": {
+    "platform": "crytic-compile",
+    "platformConfig": {
+      "target": "."
+    }
+  }
+}

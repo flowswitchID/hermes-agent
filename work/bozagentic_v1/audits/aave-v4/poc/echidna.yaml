@@ -1,0 +1,5 @@
+testMode: assertion
+testLimit: 100000
+seqLen: 100
+corpusDir: "corpus"
+coverage: true

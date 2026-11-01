@@ -1,0 +1,9 @@
+{
+  "remappings": [
+    "@eth-optimism-bedrock/contracts/=lib/optimism/packages/contracts-bedrock/src/",
+    "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
+    "@openzeppelin/contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/",
+    "@rari-capital/solmate/=lib/solmate/"
+  ],
+  "optimizer": {"enabled": true, "runs": 200}
+}

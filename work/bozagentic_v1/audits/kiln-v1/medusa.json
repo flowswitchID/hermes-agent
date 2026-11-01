@@ -1,0 +1,36 @@
+{
+  "fuzzing": {
+    "workers": 4,
+    "workerResetLimit": 50,
+    "timeout": 0,
+    "testLimit": 50000,
+    "callSequenceLength": 5,
+    "corpusDirectory": "medusa-corpus",
+    "coverageEnabled": true,
+    "targetContracts": ["StakingContract"],
+    "senderAddresses": ["0x10000","0x20000","0x30000"],
+    "testing": {
+      "stopOnFailedTest": false,
+      "stopOnFailedContractMatching": false,
+      "stopOnNoTests": true,
+      "testAllContracts": true,
+      "traceAll": false,
+      "assertionTesting": {
+        "enabled": true,
+        "testViewMethods": false,
+        "panicCodeConfig": {
+          "failOnCompilerInsertedPanic": false,
+          "failOnAssertion": true,
+          "failOnArithmeticUnderflow": true,
+          "failOnDivideByZero": true,
+          "failOnEnumTypeConversionOutOfBounds": true,
+          "failOnIncorrectStorageAccess": true,
+          "failOnPopEmptyArray": true,
+          "failOnArrayIndexOutOfBounds": true,
+          "failOnAllocateTooMuchMemory": true,
+          "failOnCallUninitializedVariable": true
+        }
+      }
+    }
+  }
+}
