@@ -2499,10 +2499,10 @@ custom_providers:
       omop/step-3.7-flash: {}
       omop/deepseek-v4.1-UNSENSORED: {}
       omop/glm-5.3-flash: {}
-      omop/kimi-k3: {}
       omop/deepseek-v4.1-flash-1017: {}
-      omop/nvidia-nemotron-3.5-super-vl: {}
       omop/deepseek-UNRESTRICTED: {}
+      omop/qwen-3.8-27b: {}
+      omop/nvidia-nemotron-3.5-super: {}
     models_discovered: true
   - name: OMOP LANGSUNG
     base_url: https://omoapicall.web.id/v1
@@ -2513,10 +2513,9 @@ custom_providers:
       step-3.7-flash: {}
       deepseek-v4.1-UNSENSORED: {}
       glm-5.3-flash: {}
-      kimi-k3: {}
       deepseek-v4.1-flash-1017: {}
-      nvidia-nemotron-3.5-super-vl: {}
-      deepseek-UNRESTRICTED: {}
+      qwen-3.8-27b: {}
+      nvidia-nemotron-3.5-super: {}
     models_discovered: true
   - name: OMOP TRIAL
     base_url: https://omop.ai.id/v1

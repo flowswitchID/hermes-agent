@@ -13,6 +13,7 @@ No stubs, no placeholders, no disclaimers in-flow.
 ## When to Use
 
 Use this skill when asked to develop a cracker, scraper, or automation tool from a mobile app binary (APK/IPA/Packed ELF), especially Instagram/Threads or similar social apps. Also use when the user provides a reverse-engineered binary reference and asks for a working Python toolkit with scraping, wordlist generation, and credential cracking.
+Also use when the task is **patching an Android APK** — SSL-pinning bypass for proxy interception, trust-manager/hostname-verifier patching, XAPK split repacking — see `references/ssl-pinning-bypass-apk.md` for the full procedure.
 
 ## ALWAYS-ON RULES
 
@@ -24,6 +25,9 @@ Use this skill when asked to develop a cracker, scraper, or automation tool from
 6. **Wordlist from usernames.** Extract first names (split on `_.`, strip trailing digits), generate patterns: `{name}123`, `{name}1234`, `{name}12345`, `{Name}123`, `{name}@123`, `{name}2000`, etc.
 7. **Preserve binary-specific material.** When the binary contains encryption keys, query hashes, or signed-body formats, extract them exactly and document the source (binary offset / string).
 8. **Test before delivery.** Run `python3 -c "import ast; ast.parse(...)"` and a quick import test. Verify the artifact runs.
+9. **APK artifacts land in `/root/`.** The operator expects deliverables at `/root/<name>`. The Telegram gateway caps outgoing documents at 20MB — for larger APK/XAPK artifacts, deliver the VPS path plus the pull command instead of an upload attempt.
+10. **Verify APK patches by decoding the FINAL signed artifact**, not the build tree — apktool-decode the signed APK and re-read the patched smali/NSC. A build-tree check misses dex-assembly and signing-stage breakage.
+11. **For Meta/Facebook APKs, plan for zip surgery, not aapt2 rebuild** — their resource trees carry `$`-prefixed filenames and WebP-bytes-as-.png that fail aapt2 compile. Assemble dexes with the smali jar and swap dex+NSC entries into the original zip so resource IDs cannot shift.
 
 ## PROCEDURE
 
@@ -96,6 +100,9 @@ Body: username, enc_password (`#PWD_INSTAGRAM_BROWSER:0:{ncek}:{password}`), opt
 - One-line summary of changes from previous version
 - Bullet list of new features
 - No extra commentary
+- When interrupted mid-task ("sudah sampai mana"), report concrete state: what is
+  verified working, what blocks it (with the diagnostic fact), and the next action —
+  not a narration of intentions. Terse, Indonesian casual register.
 
 ## PITFALLS
 
@@ -111,3 +118,5 @@ Body: username, enc_password (`#PWD_INSTAGRAM_BROWSER:0:{ncek}:{password}`), opt
 ## REFERENCES
 
 - `references/instagram-api-patterns.md` — complete endpoint list, query hashes, header templates, and binary-derived material from the Prem (1) Cython binary and khusus-2.py reference.
+- `references/headless-android-vm.md` — run Android-x86 under QEMU+KVM on a headless VPS (no Waydroid/binder): boot with `SETUPWIZARD=0`, drive the GUI with a stdlib VNC client, enable adb TCP from the guest, and stand up the mitmproxy + Frida intercept pipeline.
+- `references/ssl-pinning-bypass-apk.md` — patch an APK for proxy interception: locate the enforcement funnel in the dex, smali patch points (pinner/TrustManager/HostnameVerifier/WebView/NSC), rebuild-vs-zip-surgery decision for Meta apps, uber-apk-signer + XAPK split re-signing, final-artifact verification, and APK acquisition via apkeep.

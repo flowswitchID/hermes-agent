@@ -320,6 +320,22 @@ reconstruction, not the disassembly.
   is both a recovered global constant and a `__pyx_pf_*` function, the call site
   is `name()`; emitting `print(name)` compiles cleanly and prints a function
   object at runtime.
+- **A mock must match the recovered regex's literal shape, not the canonical API
+  shape.** When building the HTTP mock for a token/field-extraction test, the
+  mock body must contain the exact substring the recovered regex matches. A
+  regex like `"token":"(EAA[a-zA-Z0-9]+G)"` does **not** match the canonical
+  JSON field `"access_token":"EAA..."` — inside it the `t` is preceded by `_`,
+  not `"`, so the literal `"token":"` never appears. The failure looks like the
+  reconstruction is broken (poll loop exhausts, returns `None`) when the mock is
+  wrong. When the regex is VERIFIED from the string table, keep the recovered
+  behaviour and fix the mock; note the shape dependency in the report.
+- **A genexpr symbol used as a callable needs a hybrid class, and the wrapper
+  must forward its argument.** When `nm` shows a `<name>.<genexpr>` symbol but
+  call sites do both `list(f(rows))` and `f(sep)(rows)`, emit a small class with
+  `__call__` and `__iter__` over the same generator. The signature is the trap:
+  `def f(rows=None, sep="|"): return _Gen(sep)` silently swallows `rows` into
+  `sep`, so every call returns an empty iterable and the smoke test passes only
+  if it asserts on emptiness. Branch on `rows is not None` and consume.
 - **Redact recovered credentials in both the emitted source and the report.**
   Cython modules routinely hardcode app tokens, cookies, and API keys in the
   string table. Replace the literal with `[REDACTED]` (keep its length and
