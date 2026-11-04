@@ -2,7 +2,7 @@
 name: security-arsenal
 description: Security payloads, bypass tables, wordlists, gf pattern names, always-rejected bug list, and conditionally-valid-with-chain table. Use when you need specific payloads for XSS/SSRF/SQLi/XXE/NoSQLi/command injection/SSTI/IDOR/path-traversal/HTTP smuggling/WebSocket/MFA bypass, bypass techniques, or to check if a finding is submittable. Also use when asked about what NOT to submit.
 ---
-<!-- BOZ honesty override: severity only with tool data; honest-bug-bounty-reporting + SOUL win over this file; no fabrication; rootcause+flow > guess -->
+<!-- SYADAGENTIC honesty override: severity only with tool data; honest-bug-bounty-reporting + SOUL win over this file; no fabrication; rootcause+flow > guess -->
 
 
 # SECURITY ARSENAL

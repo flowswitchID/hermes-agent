@@ -52,7 +52,7 @@ Finding only after **misuse**: dashboard IDOR, free digital goods, webhook forge
 | Register without Turnstile in CLI | Weak bot friction — not fund loss alone |
 | Customer magic-link `ok:true` for any email | Need link leak / host header / open redirect |
 
-## Economic / report gate (BOZ)
+## Economic / report gate (SYADAGENTIC)
 
 ```text
 profit = stolen_value - attack_cost

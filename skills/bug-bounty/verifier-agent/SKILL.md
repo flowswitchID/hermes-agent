@@ -182,7 +182,7 @@ verifier-agent/
 | `webhunter-os` | Web hunter + web verifier |
 | `ai-quality` | Internal self-critique (always on) |
 | `bug-bounty` | Operational tooling |
-| `bozagentic` (soul.md) | Always-on operating system |
+| `SYADAGENTIC` (soul.md) | Always-on operating system |
 
 ## Workflow Recommendation
 

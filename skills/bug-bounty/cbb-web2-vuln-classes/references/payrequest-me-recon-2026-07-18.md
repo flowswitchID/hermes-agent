@@ -2,7 +2,7 @@
 
 **Target:** `https://payrequest.me/` (+ `payrequest.app`, `payrequest.io`)  
 **Stack:** Laravel + Livewire + Flux · Cloudflare · nginx origin · Stripe/Mollie/PayPal/MoonPay · EVM Base + Solana · x402  
-**Critical verified this session:** none → **no formal report** (BOZ gate)
+**Critical verified this session:** none → **no formal report** (SYADAGENTIC gate)
 
 ## Quick map
 

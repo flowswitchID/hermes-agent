@@ -103,12 +103,29 @@ then sign it with the same debug key. Verify with
 `keytool -printcert -jarfile <apk> | grep SHA256` on both — fingerprints must match.
 Repack: `base + splits + manifest.json + icon.png` into the .xapk.
 
+**Write every XAPK-level entry as ZIP_STORED.** SAI opens the base APK through a
+NESTED ZipInputStream and inflates XAPK entries as it copies them; a deflated
+entry whose stream is even slightly off produces `invalid entry size (expected X
+but got Y)` or `invalid stored block lengths` at install time. STORED entries
+remove the inflate failure class entirely (cost: a bigger .xapk, e.g. 125MB->229MB
+for FB 585 — irrelevant for delivery). After repack, verify the zip structurally:
+central-directory csize/usize must equal the local-header values for every entry,
+and `zipfile.testzip()` must pass — a mismatch means a streaming write left a
+data-descriptor entry and the artifact is not SAI-safe.
+
 ## 5. VERIFY THE FINAL ARTIFACT (never skip)
 
 smali 2.5.2 is assemble-only — you cannot disassemble the new dex to check it.
 Instead **decode the final signed APK with apktool and re-read the patched smali**:
 `A03` shows `return-void`, the NSC decodes without `pin-set` and with user trust,
 WebView handlers show `proceed()`. Also `zipfile.testzip()` the XAPK.
+
+The NSC entry itself SURVIVES a patched build (obfuscated name, e.g. `res/36u.xml`)
+— "stripped" means the pin-set inside was replaced, not that the file was deleted.
+Confirm the patch by the entry's decoded strings (`network-security-config`,
+`base-config`, `trust-anchors`, `certificates`, `system`, `user`,
+`cleartextTrafficPermitted`), never by entry presence/absence. Record the built
+artifact's md5 — it is the value the operator verifies on device after download.
 
 ## 6. ACQUIRING LATEST APKs
 
@@ -125,11 +142,52 @@ If blocked, have the operator upload the APK to the VPS (`/root/`) and work from
 ## DELIVERY
 
 - Artifacts land in `/root/` (operator convention).
-- The Telegram gateway caps outgoing documents at 20MB; patched FB-scale APKs
-  (90-230MB) stay on the VPS — deliver the path + pull command, not an upload attempt.
+- Telegram gateway caps outgoing documents at 20MB. For a phone-side install of a
+  90-230MB artifact, split and send parts — gofile.io's >100MB downloads arrive
+  corrupt on device, so prefer this route:
+  ```bash
+  split -b 19M -d -a 1 file.xapk part
+  cat part* | md5sum   # must equal md5sum file.xapk — verify BEFORE sending
+  ```
+  Send each part via MEDIA:, then give the join + verify commands:
+  `cat part0 part1 ... part6 > fb.xapk` then `md5sum fb.xapk` (must match).
+- VPS path + pull command remains the fallback when parts delivery is impractical.
 - Ship a Frida companion script alongside the patched APK (blanket
   TrustManagerImpl.verifyChain, X509TrustManager impls, HostnameVerifier,
   okhttp CertificatePinner.check, WebView proceed) as runtime belt-and-braces.
+
+## DEVICE INSTALL TROUBLESHOOT (SAI / Split Installer)
+
+`java.util.zip.ZipException: invalid code lengths set`, `invalid entry size
+(expected X but got Y)`, or `invalid stored block lengths` from `ZipApkSource` /
+`RootlessSaiPackageInstaller.install` = the COPY ON THE DEVICE is corrupt
+(truncated or CDN-mangled download), not a bad artifact. Triage in this order:
+
+1. Verify the source on the VPS: `zipfile.testzip()` every APK and the XAPK, then
+   `md5sum` the XAPK against its parts (`cat part* | md5sum`). Both pass -> the
+   artifact is good; re-deliver.
+2. On device, verify BEFORE install: `md5sum fb.xapk` must equal the VPS hash.
+   A matching file size does not prove content integrity.
+3. Uninstall the original app first — patched builds are debug-signed, and the
+   vendor release key on the installed app rejects the overwrite. (Skip for a
+   coexist build whose permissions were renamed — see
+   `axml-manifest-and-v1-signing.md` §3.)
+4. Re-deliver via Telegram split parts (DELIVERY above), not the same gofile link.
+5. If the VPS artifact passes every check AND the device md5 matches but SAI
+   still throws size/inflate errors: SAI caches the parsed apksource by
+   filename — deliver under a NEW filename to force a re-parse.
+6. If the operator insists on a download link, follow `large-file-delivery.md`.
+
+## BUILD ENVIRONMENT (4GB VPS)
+
+- Check `free -m` before dex assembly or any >100MB zip write. A headless
+  Android VM under QEMU holds ~2GB by itself — stop it before a big build.
+- Stop background processes BY PID (`ps aux` -> `kill <pid>`). Never
+  `pkill -f <name>` when that name also appears in your own command — the
+  pattern matches the agent's own shell and SIGTERMs the terminal mid-task.
+- In-memory python `zipfile` writes of >100MB get interrupted on a RAM-starved
+  box; handle large artifacts with streaming CLI (`split`, `cat`) and verify
+  with md5.
 
 ## FACEBOOK 585 QUICK REFERENCE (re-map for other versions)
 

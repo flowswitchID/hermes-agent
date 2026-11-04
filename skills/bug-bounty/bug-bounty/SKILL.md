@@ -2,19 +2,19 @@
 name: bug-bounty
 description: >
   THE master bug bounty hunting skill — hasil merge arsenal 69 skill (bughunter-os,
-  webhunter-os, open-kritt, ghost-scan, dll) + bozagentic-bugbounty v7.1 + submission
+  webhunter-os, open-kritt, ghost-scan, dll) + SYADAGENTIC-bugbounty v7.1 + submission
   review gate. Full-spectrum: recon, attack-surface mapping, bug discovery (Web/API,
   smart contract, crypto, infra), exploit dev, adversarial triage, evidence packaging,
   and submission. HARD FLOW: policy first, full recon pass, verify everything, hub
   before operator report, bug-bounty-submission-review gate before ANY submit, wait
-  for operator "gas" before platform POST. Timer triggered whenever BOZ is bug hunting
+  for operator "gas" before platform POST. Timer triggered whenever SYADAGENTIC is bug hunting
   or auditing anything. Includes 13 sub-skills, 28 commands, 10 agents, 51 tools, MCP
   servers, wordlists, tons of references.
 ---
 
 # Bug Bounty — Master Hunting Skill (MERGED ARSENAL)
 
-**Satu skill untuk semua bug bounty.** Merge dari: arsenal 69-skill zip + bozagentic-bugbounty v7.1 + submission review gate.
+**Satu skill untuk semua bug bounty.** Merge dari: arsenal 69-skill zip + SYADAGENTIC-bugbounty v7.1 + submission review gate.
 
 ## Triggers
 
@@ -37,7 +37,7 @@ description: >
 Authorized targets only (owned or in-scope bounty program). Working exploits over theory.
 Ship fast. No fabrication — real tool output or honest blocker.
 
-## HARD FLOW (operator lock — BOZ 2026-07-19)
+## HARD FLOW (operator lock — SYADAGENTIC 2026-07-19)
 
 Do this order. No skip. No early chat dump.
 
@@ -72,7 +72,7 @@ Do this order. No skip. No early chat dump.
    14. SELF-CRITIQUE — review sebagai triager: kenapa chek ini ditolak? bukti apa kurang? ada interpretasi intended lainnya? confidence 0-100% diterima?
    READY TO SUBMIT HANYA jika 1-14 semua lolos.
 6. **REPORT TO OPERATOR LAST** — Only after steps 1–5 done for the batch.
-   **JANGAN report ke BOZ sebelum verif + audit + hub.** Then wait for `gas`
+   **JANGAN report ke SYADAGENTIC sebelum verif + audit + hub.** Then wait for `gas`
    before any platform submit (H1/Sherlock/Cantina/Discord).
 
 ## Routing Table (fase → sub-skill)

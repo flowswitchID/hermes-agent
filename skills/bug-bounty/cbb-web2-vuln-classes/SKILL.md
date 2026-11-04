@@ -2,7 +2,7 @@
 name: web2-vuln-classes
 description: Complete reference for 24 web2 bug classes with root causes, detection patterns, bypass tables, exploit techniques, and real paid examples. Covers IDOR, auth bypass, XSS, SSRF (11 IP bypass techniques), SQLi, business logic, race conditions, OAuth/OIDC, file upload (10 bypass techniques), GraphQL, LLM/AI (ASI01-ASI10 agentic framework), API misconfig (mass assignment, JWT attacks, prototype pollution, CORS), ATO taxonomy (9 paths), SSTI (Jinja2/Twig/Freemarker/ERB/Spring), subdomain takeover, cloud/infra misconfigs, HTTP smuggling (CL.TE/TE.CL/H2.CL), cache poisoning, MFA bypass (7 patterns), SAML attacks (XSW/comment injection/signature stripping), error disclosure / debug endpoints (stack trace regex per framework, chain templates), CSS injection (attribute-selector exfiltration, opacity clickjacking, @import). LFI / file inclusion -> RCE (php://filter source disclosure, iconv filter-chain RCE with no upload, log/environ poisoning, .user.ini/.htaccess auto_prepend, data:// + expect:// wrappers, session inclusion, traversal bypass table). Insecure deserialization (PHP __wakeup bypass / phar:// POP chains, Java ysoserial CommonsCollections gadgets + magic bytes, Python pickle __reduce__ + signed-cookie forgery, Node node-serialize). Use when hunting a specific vuln class or studying what makes bugs pay.
 ---
-<!-- BOZ honesty override: severity only with tool data; honest-bug-bounty-reporting + SOUL win over this file; no fabrication; rootcause+flow > guess -->
+<!-- SYADAGENTIC honesty override: severity only with tool data; honest-bug-bounty-reporting + SOUL win over this file; no fabrication; rootcause+flow > guess -->
 
 
 # WEB2 BUG CLASSES — 24 Classes

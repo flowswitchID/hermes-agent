@@ -84,7 +84,8 @@ Docs: https://hermes-agent.nousresearch.com/docs/user-guide/messaging/
 ### Sessions
 
 ```
-hermes sessions list|browse|rename ID TITLE|delete ID|export OUT|prune|stats
+hermes sessions list|browse|rename ID TITLE|delete ID [--yes]|export OUT|prune|stats
+# delete --yes skips the confirmation prompt; verify with: hermes sessions list | grep <id>
 ```
 
 ### Cron / Webhooks

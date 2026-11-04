@@ -1,4 +1,4 @@
-# sk6 — Protocol Binding & Service Bridge (BOZAGENTIC)
+# sk6 — Protocol Binding & Service Bridge (SYADAGENTIC)
 # Load when: API, REST, webhook, midtrans, integrasi, endpoint, SDK, integration
 # Category: Data & Integration
 

@@ -1,4 +1,4 @@
-# sk4 — Process Orchestration & Bots (BOZAGENTIC)
+# sk4 — Process Orchestration & Bots (SYADAGENTIC)
 # Load when: telegram bot, cron, webhook, n8n, automate, bot, otomatis, schedule, jadwal
 # Category: Infrastructure & DevOps
 

@@ -149,4 +149,4 @@ for finding in findings:
 ## Related Skills
 
 - `sherlock-submission` — narrower skill in the security category, more focused
-- `bozagentic-bounty-hunter` — full bounty methodology
+- `SYADAGENTIC-bounty-hunter` — full bounty methodology

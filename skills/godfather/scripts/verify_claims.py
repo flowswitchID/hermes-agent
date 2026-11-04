@@ -1,0 +1,1868 @@
+"""
+verify_claims — recompute every factual claim in README.md from the committed
+tree.
+
+The README is a contract. This harness treats it as one: each claim is bound to
+an exact piece of README text and to a checker that recomputes it from the
+files in this repository. A claim that cannot be reproduced fails, the process
+exits non-zero, and the release is blocked.
+
+    python3 scripts/verify_claims.py
+    python3 scripts/verify_claims.py --list
+    python3 scripts/verify_claims.py --json
+
+Stdlib only, Python 3.9+. No pip install.
+"""
+
+import argparse
+import ast
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+import tempfile
+import textwrap
+import urllib.error
+import urllib.parse
+import urllib.request
+
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+README_PATH = os.path.join(REPO_ROOT, "README.md")
+INSTALL_SH = os.path.join(REPO_ROOT, "install.sh")
+BOOTSTRAP_SH = os.path.join(REPO_ROOT, "bootstrap.sh")
+ADAPTERS_DIR = os.path.join(REPO_ROOT, "adapters")
+SCRIPTS_DIR = os.path.join(REPO_ROOT, "scripts")
+
+RUN_TIMEOUT = 180
+NETWORK_TIMEOUT = 15
+
+README_WRITES_TABLE = """## What it writes
+
+| Agent | Global | Project |
+|:------|:-------|:--------|
+| Claude Code | `~/.claude/skills/godfather/SKILL.md`, `~/.claude/CLAUDE.md` | `.claude/skills/godfather/SKILL.md`, `CLAUDE.md` |
+| Codex CLI | `~/.codex/AGENTS.md`, `~/.codex/prompts/godfather.md` | `AGENTS.md` |
+| Cursor | `~/.cursor/rules/godfather.mdc` | `.cursor/rules/godfather.mdc` |
+| Windsurf | `~/.codeium/windsurf/memories/global_rules.md` | `.windsurf/rules/godfather.md` |
+| Gemini CLI | `~/.gemini/GEMINI.md` | `GEMINI.md` |
+| Cline | `~/Documents/Cline/Rules/godfather.md` | `.clinerules/godfather.md` |
+| Roo Code | `~/Documents/Roo/Rules/godfather.md` | `.roo/rules/godfather.md` |
+| Continue | `~/.continue/rules/godfather.md` | `.continue/rules/godfather.md` |
+| OpenClaw | `~/.openclaw/workspace/AGENTS.md`, `~/.openclaw/skills/godfather/` | `AGENTS.md`, `skills/godfather/` |
+| OpenCode | `~/.config/opencode/AGENTS.md`, `~/.config/opencode/skills/godfather/` | `AGENTS.md`, `.opencode/skills/godfather/` |
+| Antigravity | `~/.gemini/AGENTS.md`, `~/.gemini/godfather/` | `AGENTS.md`, `.agent/skills/godfather/` |
+| Hermes Lab | `~/.hermes-lab/AGENTS.md`, `~/.hermes-lab/godfather/` | `AGENTS.md` |
+| MiniMax | `~/.minimax/AGENTS.md`, `~/.minimax/godfather/` | `AGENTS.md` |
+| Core | `~/.godfather/scripts/`, `~/.godfather/env` | — |
+"""
+
+README_INSTALL_BLOCK = """
+bash install.sh --dry-run      # preview every write
+bash install.sh                # install (auto-detects your agents)
+bash install.sh --agents claude-code,codex
+bash install.sh --uninstall    # clean removal, backups kept
+"""
+
+README_LAYOUT_BLOCK = """
+bootstrap.sh                   one-line installer from GitHub
+install.sh                     installer / uninstaller
+install-termux.sh              alias for install.sh, kept for old bootstraps
+install-mcp.sh                 register the MCP server with your agents
+verify.sh                      run the self-verifying claims harness
+gf                             unified CLI (relay, clean, providers, verify)
+SKILL.md                       portable skill body (agent-agnostic)
+assets/logo.jpg               project logo
+adapters/                      per-agent always-on rule text
+adapters/commands/             the /godfather activation
+scripts/                       relay, resolver, payloads, MCP, canary, scoring
+references/framing-toolkit.md  completion/continuation/dual-use frames
+references/jailbreak-templates/  per-family payloads (L1B3RT4S corpus)
+references/system-prompts/     published agent system prompts
+references/refusal-detection.md    full pattern list
+
+Curated templates with worked examples: `references/jailbreak-templates.md`.
+"""
+
+CLAIMS = [
+    {
+        "id": "agent_coverage",
+        "text": README_WRITES_TABLE,
+        "check": "every_adapter_exists",
+        "kind": "static",
+    },
+    {
+        "id": "install_paths",
+        "text": README_INSTALL_BLOCK,
+        "check": "every_agent_installable",
+        "kind": "runtime",
+    },
+    {
+        "id": "uninstall_paths",
+        "text": "Removes the marker blocks and copied files. Backups (`*.bak.godfather`) are kept.",
+        "check": "every_agent_uninstalls",
+        "kind": "runtime",
+    },
+    {
+        "id": "shared_agents_md",
+        "text": "Every write is marker-delimited and per-agent (`<!-- BEGIN GODMODE-PORTABLE:codex -->`), so several agents can share one `AGENTS.md` without overwriting each other.",
+        "check": "shared_agents_md",
+        "kind": "runtime",
+    },
+    {
+        "id": "existing_content",
+        "text": "Your existing `CLAUDE.md` / `AGENTS.md` content is preserved, and the first change takes a `.bak.godfather` backup.",
+        "check": "existing_content_preserved",
+        "kind": "runtime",
+    },
+    {
+        "id": "reference_files_exist",
+        "text": "Curated templates with worked examples: `references/jailbreak-templates.md`.",
+        "check": "every_reference_file_exists",
+        "kind": "static",
+    },
+    {
+        "id": "runtime_link",
+        "text": "Removes the marker blocks and copied files. Backups (`*.bak.godfather`) are kept.",
+        "check": "runtime_dir_linked",
+        "kind": "runtime",
+    },
+    {
+        "id": "logo_present",
+        "text": "assets/logo.jpg               project logo",
+        "check": "logo_present",
+        "kind": "static",
+    },
+    {
+        "id": "resolves_without_optional_deps",
+        "text": "The resolver reads the agent's own provider config, so it works with no third-party packages installed.",
+        "check": "resolves_without_optional_deps",
+        "kind": "runtime",
+    },
+    {
+        "id": "termux_detected",
+        "text": "A python binary that cannot start is reported as a missing package rather than failing later.",
+        "check": "termux_detected",
+        "kind": "runtime",
+    },
+    {
+        "id": "termux_alias",
+        "text": "The alias runs the same installer.",
+        "check": "termux_alias_works",
+        "kind": "runtime",
+    },
+    {
+        "id": "agent_detected_without_cli",
+        "text": "An agent is configured when its config directory exists, even if the agent binary is not on the PATH.",
+        "check": "agent_detected_without_cli",
+        "kind": "runtime",
+    },
+    {
+        "id": "missing_packages_only",
+        "text": "A python binary that cannot start is reported as a missing package rather than failing later.",
+        "check": "missing_packages_only",
+        "kind": "runtime",
+    },
+    {
+        "id": "broken_python_detected",
+        "text": "A python binary that cannot start is reported as a missing package rather than failing later.",
+        "check": "broken_python_detected",
+        "kind": "runtime",
+    },
+    {
+        "id": "bootstrap_single_source",
+        "text": "The installed rules are written as an engagement scope, so a model does not read them as an attempt to override its own configuration.",
+        "check": "bootstrap_install_single_source",
+        "kind": "runtime",
+    },
+    {
+        "id": "adapters_no_refusal_triggers",
+        "text": "The installed rules are written as an engagement scope, so a model does not read them as an attempt to override its own configuration.",
+        "check": "adapters_have_no_refusal_triggers",
+        "kind": "static",
+    },
+    {
+        "id": "god_mode_panel",
+        "text": "The status panel reports what is actually on this machine and names the activation commands.",
+        "check": "god_mode_panel",
+        "kind": "runtime",
+    },
+    {
+        "id": "slash_commands_installed",
+        "text": "Both activation commands land in the command folder of every agent that supports them.",
+        "check": "slash_commands_installed",
+        "kind": "runtime",
+    },
+    {
+        "id": "guard_layer_covers_agents",
+        "text": "The guard layer covers the config and state agents.",
+        "check": "guard_layer_covers_agents",
+        "kind": "static",
+    },
+    {
+        "id": "guard_settings_are_real",
+        "text": "Every guard names a setting the agent ships.",
+        "check": "guard_settings_are_real",
+        "kind": "static",
+    },
+    {
+        "id": "guard_backup_and_restore",
+        "text": "The guard backs up before it writes and restores cleanly.",
+        "check": "guard_backup_and_restore",
+        "kind": "runtime",
+    },
+    {
+        "id": "proxy_serves_both_shapes",
+        "text": "The proxy serves the OpenAI and the Anthropic shape.",
+        "check": "proxy_serves_both_shapes",
+        "kind": "runtime",
+    },
+    {
+        "id": "monologue_is_rejected",
+        "text": "A reply that only plans the work is rejected.",
+        "check": "monologue_is_rejected",
+        "kind": "runtime",
+    },
+    {
+        "id": "cline_guard_survives_a_fresh_launch",
+        "text": "A Cline that has never launched still comes up with auto-approval on.",
+        "check": "cline_guard_survives_a_fresh_launch",
+        "kind": "runtime",
+    },
+    {
+        "id": "hermes_scope_survives_a_new_session",
+        "text": "The scope rides agent.system_prompt, so a new session keeps it.",
+        "check": "hermes_scope_survives_a_new_session",
+        "kind": "runtime",
+    },
+    {
+        "id": "scope_precedence_is_installed",
+        "text": "The scope block is in the skill and in every adapter.",
+        "check": "scope_precedence_is_installed",
+        "kind": "static",
+    },
+    {
+        "id": "relay_wording_avoids_evasion",
+        "text": "The relay is described as a local script, not as evasion.",
+        "check": "relay_wording_avoids_evasion",
+        "kind": "static",
+    },
+    {
+        "id": "agent_env_wiring",
+        "text": "The agent env wiring is in place.",
+        "check": "agent_env_wiring",
+        "kind": "static",
+    },
+    {
+        "id": "agent_layer_removes_client_guards",
+        "text": "The client guard keys are all handled.",
+        "check": "agent_layer_removes_client_guards",
+        "kind": "static",
+    },
+    {
+        "id": "guard_merge_keeps_user_rules",
+        "text": "The guard merges the allow list and clears the deny list.",
+        "check": "guard_merge_keeps_user_rules",
+        "kind": "runtime",
+    },
+    {
+        "id": "provider_catalogue_is_generic",
+        "text": "The provider catalogue is generic and name-free.",
+        "check": "provider_catalogue_is_generic",
+        "kind": "static",
+    },
+    {
+        "id": "command_arms_the_full_stack",
+        "text": "The command arms the guard, the relay and the scope.",
+        "check": "command_arms_the_full_stack",
+        "kind": "static",
+    },
+    {
+        "id": "skill_is_named_godfather",
+        "text": "The skill is named godfather and carries the teardown.",
+        "check": "skill_is_named_godfather",
+        "kind": "static",
+    },
+    {
+        "id": "install_detects_and_installs_the_skill",
+        "text": "A detected agent got the skill and the command.",
+        "check": "install_detects_and_installs_the_skill",
+        "kind": "runtime",
+    },
+    {
+        "id": "python_parses",
+        "text": "All stdlib-only Python 3.9+. No pip install.",
+        "check": "every_relay_script_parses",
+        "kind": "static",
+    },
+    {
+        "id": "stdlib_only",
+        "text": "All stdlib-only Python 3.9+. No pip install.",
+        "check": "scripts_stdlib_only",
+        "kind": "static",
+    },
+    {
+        "id": "shell_parses",
+        "text": README_LAYOUT_BLOCK,
+        "check": "every_shell_script_parses",
+        "kind": "static",
+    },
+    {
+        "id": "bootstrap_url",
+        "text": "curl -fsSL https://raw.githubusercontent.com/Rafix4x/godfather/main/bootstrap.sh | bash",
+        "check": "bootstrap_downloads",
+        "kind": "runtime",
+    },
+    {
+        "id": "provider_agnostic",
+        "text": "No provider is hardcoded, so this works with whatever you already pay for.",
+        "check": "no_provider_hardcode",
+        "kind": "static",
+    },
+    {
+        "id": "relay_help",
+        "text": 'python3 ~/.godfather/scripts/relay.py "your request"',
+        "check": "relay_help_works",
+        "kind": "runtime",
+    },
+    {
+        "id": "provider_resolve",
+        "text": "python3 ~/.godfather/scripts/provider_resolve.py",
+        "check": "provider_resolve_runs",
+        "kind": "runtime",
+    },
+]
+
+
+STDLIB_FALLBACK = {
+    "abc", "argparse", "ast", "asyncio", "base64", "binascii", "bisect",
+    "calendar", "cmath", "collections", "colorsys", "concurrent", "configparser",
+    "contextlib", "copy", "csv", "ctypes", "dataclasses", "datetime", "decimal",
+    "difflib", "dis", "email", "enum", "errno", "faulthandler", "filecmp",
+    "fileinput", "fnmatch", "fractions", "ftplib", "functools", "gc", "getopt",
+    "getpass", "gettext", "glob", "gzip", "hashlib", "heapq", "hmac", "html",
+    "http", "imaplib", "importlib", "inspect", "io", "ipaddress", "itertools",
+    "json", "keyword", "linecache", "locale", "logging", "lzma", "mailbox",
+    "marshal", "math", "mimetypes", "mmap", "multiprocessing", "netrc",
+    "numbers", "operator", "os", "pathlib", "pdb", "pickle", "pkgutil",
+    "platform", "plistlib", "poplib", "pprint", "profile", "pty", "pwd",
+    "py_compile", "queue", "quopri", "random", "re", "readline", "reprlib",
+    "resource", "rlcompleter", "runpy", "sched", "secrets", "select", "selectors",
+    "shelve", "shlex", "shutil", "signal", "site", "smtplib", "socket",
+    "socketserver", "sqlite3", "ssl", "stat", "statistics", "string",
+    "stringprep", "struct", "subprocess", "symtable", "sys", "sysconfig",
+    "tarfile", "tempfile", "termios", "textwrap", "threading", "time",
+    "timeit", "tkinter", "token", "tokenize", "traceback", "tracemalloc",
+    "types", "typing", "unicodedata", "unittest", "urllib", "uu", "uuid",
+    "venv", "warnings", "wave", "weakref", "webbrowser", "xml", "xmlrpc",
+    "zipfile", "zipimport", "zlib",
+}
+
+TOKEN_RE = re.compile(r"`([^`]+)`")
+PATH_TOKEN_RE = re.compile(r"^[~\w./-]+$")
+
+
+def read_text(path):
+    with open(path, "r", encoding="utf-8", errors="replace") as fh:
+        return fh.read()
+
+
+def normalize_ws(text):
+    return " ".join(text.split())
+
+
+def run_command(argv, cwd=REPO_ROOT, env=None):
+    try:
+        proc = subprocess.run(
+            argv,
+            cwd=cwd,
+            capture_output=True,
+            text=True,
+            timeout=RUN_TIMEOUT,
+            env=env,
+        )
+    except subprocess.TimeoutExpired:
+        return 124, "", "timeout after %ss" % RUN_TIMEOUT
+    except OSError as exc:
+        return 127, "", str(exc)
+    return proc.returncode, proc.stdout, proc.stderr
+
+
+def parse_all_agents(install_src):
+    match = re.search(r"^ALL_AGENTS=\(([^)]*)\)", install_src, re.MULTILINE)
+    if not match:
+        return []
+    return match.group(1).split()
+
+
+def parse_writes_table(readme):
+    if "## What it writes" not in readme:
+        return []
+    body = readme.split("## What it writes", 1)[1].split("\n## ", 1)[0]
+    rows = []
+    for line in body.splitlines():
+        line = line.strip()
+        if not line.startswith("|"):
+            continue
+        cells = [c.strip() for c in line.strip("|").split("|")]
+        if len(cells) != 3:
+            continue
+        if cells[0].startswith(":") or cells[0] == "Agent":
+            continue
+        rows.append({"label": cells[0], "global": cells[1], "project": cells[2]})
+    return rows
+
+
+def path_tokens(cell):
+    tokens = []
+    for token in TOKEN_RE.findall(cell):
+        token = token.strip()
+        if token.endswith(":"):
+            continue
+        if not PATH_TOKEN_RE.match(token):
+            continue
+        if "/" not in token and "." not in token:
+            continue
+        tokens.append(token)
+    return tokens
+
+
+def resolve_path(token, home, project):
+    if token.startswith("~/"):
+        return os.path.join(home, token[2:])
+    if token.startswith("/"):
+        return token
+    return os.path.join(project, token)
+
+
+def row_for_agent(rows, agent):
+    for row in rows:
+        matches = matching_agents(row["label"], agent)
+        if matches == [agent]:
+            return row
+    return None
+
+
+def matching_agents(label, agent):
+    normalized = re.sub(r"[^a-z0-9]", "", label.lower())
+    matches = []
+    for candidate in agent_ids():
+        if re.sub(r"[^a-z0-9]", "", candidate.lower()) in normalized:
+            matches.append(candidate)
+    return matches
+
+
+_AGENT_CACHE = []
+
+
+def agent_ids():
+    if not _AGENT_CACHE:
+        _AGENT_CACHE.extend(parse_all_agents(read_text(INSTALL_SH)))
+    return _AGENT_CACHE
+
+
+def extract_section(output, name):
+    lines = output.splitlines()
+    inside = False
+    collected = []
+    for line in lines:
+        stripped = line.strip()
+        if stripped.startswith("[") and stripped.endswith("]"):
+            inside = stripped[1:-1] == name
+            continue
+        if inside:
+            collected.append(stripped)
+    return "\n".join(collected)
+
+
+def parse_install_artifacts(output):
+    artifacts = {"copied": [], "blocks": [], "configs": []}
+    for line in output.splitlines():
+        stripped = line.strip()
+        match = re.match(r"^created (.+) with read: (.+)$", stripped)
+        if match:
+            artifacts["configs"].append((match.group(1), match.group(2)))
+            continue
+        match = re.match(r"^created (.+) \[(.+)\]$", stripped)
+        if match:
+            artifacts["blocks"].append(match.group(1))
+            continue
+        match = re.match(r"^(?:updated|appended) block \[.+\] (?:in|->) (.+)$", stripped)
+        if match:
+            artifacts["blocks"].append(match.group(1))
+            continue
+        match = re.match(r"^copied\s+-> (.+)$", stripped)
+        if match:
+            dest = match.group(1)
+            if dest.endswith("/*.py"):
+                dest = dest[: -len("/*.py")]
+            artifacts["copied"].append(dest)
+    return artifacts
+
+
+def check_every_adapter_exists(claim):
+    """Every agent in the README table has an adapter, an installer and a slot in ALL_AGENTS."""
+    readme = read_text(README_PATH)
+    install_src = read_text(INSTALL_SH)
+    agents = parse_all_agents(install_src)
+    rows = parse_writes_table(readme)
+    if not rows:
+        return False, "no agent rows found under '## What it writes'"
+    if not agents:
+        return False, "ALL_AGENTS not found in install.sh"
+    problems = []
+    documented = set()
+    for row in rows:
+        matches = [a for a in agents
+                   if re.sub(r"[^a-z0-9]", "", a.lower())
+                   in re.sub(r"[^a-z0-9]", "", row["label"].lower())]
+        if not matches:
+            if row["label"].lower() == "core":
+                if not re.search(r"^install_core\(\)", install_src, re.MULTILINE):
+                    problems.append("core: install_core() missing from install.sh")
+                continue
+            problems.append("%s: no agent in ALL_AGENTS matches this row" % row["label"])
+            continue
+        if len(matches) > 1:
+            problems.append("%s: matches several agents (%s)" % (row["label"], ", ".join(matches)))
+            continue
+        agent = matches[0]
+        documented.add(agent)
+        adapter = os.path.join(ADAPTERS_DIR, agent + ".md")
+        if not os.path.isfile(adapter):
+            problems.append("%s: adapters/%s.md missing" % (agent, agent))
+        func = "install_%s" % agent.replace("-", "_")
+        if not re.search(r"^%s\(\)" % re.escape(func), install_src, re.MULTILINE):
+            problems.append("%s: %s() missing from install.sh" % (agent, func))
+    for agent in agents:
+        if agent not in documented:
+            problems.append("%s: installed by install.sh but not in the README table" % agent)
+    if problems:
+        return False, "; ".join(problems)
+    return True, ("%d agents documented, adapters + install functions + ALL_AGENTS in sync"
+                  % len(documented))
+
+
+def check_every_agent_installable(claim):
+    """A dry run plans every path the README promises for every agent."""
+    readme = read_text(README_PATH)
+    install_src = read_text(INSTALL_SH)
+    agents = parse_all_agents(install_src)
+    rows = parse_writes_table(readme)
+    problems = []
+    checked = 0
+    with tempfile.TemporaryDirectory() as tmp:
+        home = os.path.join(tmp, "home")
+        project = os.path.join(tmp, "project")
+        os.makedirs(home)
+        os.makedirs(project)
+        for agent in agents:
+            code, out, err = run_command([
+                "bash", INSTALL_SH, "--dry-run", "--no-detect", "--agents", agent,
+                "--target-home", home, "--project", project,
+            ])
+            if code != 0:
+                problems.append("%s: dry run exited %d (%s)" % (agent, code, err.strip()[:120]))
+                continue
+            row = row_for_agent(rows, agent)
+            if row is None:
+                problems.append("%s: no row in the README 'What it writes' table" % agent)
+                continue
+            section = extract_section(out, agent)
+            if not section:
+                problems.append("%s: dry run produced no [%s] section" % (agent, agent))
+                continue
+            for cell in (row["global"], row["project"]):
+                for token in path_tokens(cell):
+                    planned = resolve_path(token, home, project).rstrip("/")
+                    if planned not in section:
+                        problems.append("%s: %s not planned by the dry run" % (agent, token))
+                    else:
+                        checked += 1
+        core_row = None
+        for row in rows:
+            if row["label"].lower() == "core":
+                core_row = row
+        if core_row is None:
+            problems.append("core: no row in the README 'What it writes' table")
+        else:
+            code, out, err = run_command([
+                "bash", INSTALL_SH, "--dry-run", "--no-detect",
+                "--target-home", home, "--project", project,
+            ])
+            section = extract_section(out, "core")
+            if code != 0 or not section:
+                problems.append("core: dry run produced no [core] section")
+            else:
+                for cell in (core_row["global"], core_row["project"]):
+                    for token in path_tokens(cell):
+                        planned = resolve_path(token, home, project).rstrip("/")
+                        if planned not in section:
+                            problems.append("core: %s not planned by the dry run" % token)
+                        else:
+                            checked += 1
+    if problems:
+        return False, "; ".join(problems)
+    return True, "%d documented paths planned across %d agents" % (checked, len(agents))
+
+
+def check_every_agent_uninstalls(claim):
+    """A real install followed by --uninstall leaves nothing behind."""
+    install_src = read_text(INSTALL_SH)
+    agents = parse_all_agents(install_src)
+    problems = []
+    removed = 0
+    for agent in agents:
+        with tempfile.TemporaryDirectory() as tmp:
+            home = os.path.join(tmp, "home")
+            project = os.path.join(tmp, "project")
+            os.makedirs(home)
+            os.makedirs(project)
+            code, out, err = run_command([
+                "bash", INSTALL_SH, "--no-detect", "--agents", agent,
+                "--target-home", home, "--project", project,
+            ])
+            if code != 0:
+                problems.append("%s: install exited %d (%s)" % (agent, code, err.strip()[:120]))
+                continue
+            artifacts = parse_install_artifacts(out)
+            code, out, err = run_command([
+                "bash", INSTALL_SH, "--uninstall", "--agents", agent,
+                "--target-home", home, "--project", project,
+            ])
+            if code != 0:
+                problems.append("%s: uninstall exited %d (%s)" % (agent, code, err.strip()[:120]))
+                continue
+            for path in artifacts["copied"]:
+                if os.path.exists(path):
+                    problems.append("%s: %s still present after uninstall" % (agent, path))
+                else:
+                    removed += 1
+            for path in artifacts["blocks"]:
+                if os.path.exists(path):
+                    problems.append("%s: %s still present after uninstall" % (agent, path))
+                else:
+                    removed += 1
+            for path, token in artifacts["configs"]:
+                if os.path.exists(path) and token in read_text(path):
+                    problems.append("%s: %s still references %s" % (agent, path, token))
+                else:
+                    removed += 1
+    if problems:
+        return False, "; ".join(problems)
+    return True, "%d installed artifacts removed across %d agents" % (removed, len(agents))
+
+
+def check_shared_agents_md(claim):
+    """Two agents can share one AGENTS.md; uninstalling one keeps the other."""
+    with tempfile.TemporaryDirectory() as tmp:
+        home = os.path.join(tmp, "home")
+        project = os.path.join(tmp, "project")
+        os.makedirs(home)
+        os.makedirs(project)
+        agents_md = os.path.join(project, "AGENTS.md")
+        with open(agents_md, "w", encoding="utf-8") as fh:
+            fh.write("# Shared project notes\n")
+        code, out, err = run_command([
+            "bash", INSTALL_SH, "--no-detect", "--agents", "codex,openclaw",
+            "--target-home", home, "--project", project,
+        ])
+        if code != 0:
+            return False, "install exited %d (%s)" % (code, err.strip()[:160])
+        content = read_text(agents_md)
+        problems = []
+        for agent in ("codex", "openclaw"):
+            if "BEGIN GODMODE-PORTABLE:%s" % agent not in content:
+                problems.append("%s block missing from the shared AGENTS.md" % agent)
+        if "# Shared project notes" not in content:
+            problems.append("pre-existing content was dropped from AGENTS.md")
+        code, out, err = run_command([
+            "bash", INSTALL_SH, "--uninstall", "--agents", "codex",
+            "--target-home", home, "--project", project,
+        ])
+        if code != 0:
+            return False, "uninstall exited %d (%s)" % (code, err.strip()[:160])
+        if not os.path.exists(agents_md):
+            return False, "AGENTS.md was deleted while another agent's block was still installed"
+        content = read_text(agents_md)
+        if "BEGIN GODMODE-PORTABLE:codex" in content:
+            problems.append("codex block survived its own uninstall")
+        if "BEGIN GODMODE-PORTABLE:openclaw" not in content:
+            problems.append("openclaw block was destroyed by the codex uninstall")
+        if "# Shared project notes" not in content:
+            problems.append("pre-existing content was dropped by the uninstall")
+        if problems:
+            return False, "; ".join(problems)
+        return True, "codex and openclaw coexist in one AGENTS.md, each uninstalls cleanly"
+
+
+def check_existing_content_preserved(claim):
+    """Existing CLAUDE.md content survives install and uninstall, with a backup kept."""
+    with tempfile.TemporaryDirectory() as tmp:
+        home = os.path.join(tmp, "home")
+        project = os.path.join(tmp, "project")
+        os.makedirs(home)
+        os.makedirs(project)
+        claude_md = os.path.join(project, "CLAUDE.md")
+        original = "# House rules\n\nAlways run the tests.\n"
+        with open(claude_md, "w", encoding="utf-8") as fh:
+            fh.write(original)
+        code, out, err = run_command([
+            "bash", INSTALL_SH, "--no-detect", "--agents", "claude-code",
+            "--target-home", home, "--project", project,
+        ])
+        if code != 0:
+            return False, "install exited %d (%s)" % (code, err.strip()[:160])
+        problems = []
+        content = read_text(claude_md)
+        if original.strip() not in content:
+            problems.append("pre-existing content missing after install")
+        if "BEGIN GODMODE-PORTABLE:claude-code" not in content:
+            problems.append("marker block missing after install")
+        backup = claude_md + ".bak.godfather"
+        if not os.path.isfile(backup):
+            problems.append("no .bak.godfather backup was written")
+        elif read_text(backup) != original:
+            problems.append(".bak.godfather backup does not hold the original content")
+        code, out, err = run_command([
+            "bash", INSTALL_SH, "--uninstall", "--agents", "claude-code",
+            "--target-home", home, "--project", project,
+        ])
+        if code != 0:
+            return False, "uninstall exited %d (%s)" % (code, err.strip()[:160])
+        if not os.path.exists(claude_md):
+            return False, "CLAUDE.md was deleted by the uninstall"
+        content = read_text(claude_md)
+        if original.strip() not in content:
+            problems.append("pre-existing content lost after uninstall")
+        if "GODMODE-PORTABLE" in content:
+            problems.append("marker block survived the uninstall")
+        if not os.path.isfile(backup):
+            problems.append("backup was removed by the uninstall")
+        if problems:
+            return False, "; ".join(problems)
+        return True, "existing CLAUDE.md preserved, backup written, block removed on uninstall"
+
+
+def python_sources():
+    if not os.path.isdir(SCRIPTS_DIR):
+        return []
+    return sorted(
+        os.path.join(SCRIPTS_DIR, name)
+        for name in os.listdir(SCRIPTS_DIR)
+        if name.endswith(".py") and os.path.isfile(os.path.join(SCRIPTS_DIR, name))
+    )
+
+
+def check_every_reference_file_exists(claim):
+    wanted = [
+        "references/framing-toolkit.md",
+        "references/jailbreak-templates.md",
+        "references/refusal-detection.md",
+        "references/jailbreak-templates",
+        "references/system-prompts",
+    ]
+    problems = []
+    for rel in wanted:
+        path = os.path.join(REPO_ROOT, rel)
+        if os.path.isdir(path):
+            entries = [e for e in os.listdir(path) if e.endswith((".md", ".txt"))]
+            if not entries:
+                problems.append("%s is empty" % rel)
+        elif not os.path.isfile(path):
+            problems.append("%s is missing" % rel)
+    if problems:
+        return False, "; ".join(problems)
+    return True, "%d reference paths present" % len(wanted)
+
+
+def check_bootstrap_install_single_source(claim):
+    """
+    With --install the bootstrap must leave the instructions to the
+    installer, so the guidance comes from the copy that was just unpacked
+    and never from a cached bootstrap.
+    """
+    home = tempfile.mkdtemp(prefix="gf_bs_")
+    project = tempfile.mkdtemp(prefix="gf_bs_proj_")
+    try:
+        env = dict(os.environ)
+        env["PREFIX"] = "/data/data/com.termux/files/usr"
+        env["HOME"] = home
+        env["GODFATHER_HOME"] = os.path.join(home, ".godfather")
+        code, out, err = run_command(
+            ["bash", BOOTSTRAP_SH, "--install"],
+            cwd=project, env=env)
+        combined = out + err
+        if code != 0:
+            return False, "the bootstrap failed: %s" % combined.strip()[:140]
+        if "installed on Termux" not in combined:
+            return False, "the installer did not report Termux"
+        if "Missing packages" in combined:
+            return False, "a package list was printed even though all are present"
+        if combined.count("Next steps:") != 1:
+            return False, "the instructions were printed more than once"
+        return True, "the installer is the only source of the instructions"
+    finally:
+        shutil.rmtree(home, ignore_errors=True)
+        shutil.rmtree(project, ignore_errors=True)
+
+
+def check_god_mode_panel(claim):
+    """
+    The status panel must report what is actually on this machine, not a
+    fixed list, and it must name the activation commands.
+    """
+    code, out, err = run_command(
+        [sys.executable, os.path.join(SCRIPTS_DIR, "status.py")])
+    if code != 0:
+        return False, "the panel failed: %s" % (err.strip()[:120] or out.strip()[:120])
+    for needle in ("G O D  M O D E", "STATUS:", "Activate with:"):
+        if needle not in out:
+            return False, "the panel does not show %r" % needle
+    if "/godfather" not in out:
+        return False, "the panel does not name the activation command"
+    if "What God Mode delivers" not in out:
+        return False, "the panel does not list the agents"
+    return True, "the panel renders with the real machine state"
+
+
+def check_slash_commands_installed(claim):
+    """
+    Both activation commands must land in the command folder of every agent
+    that supports them.
+    """
+    home = tempfile.mkdtemp(prefix="gf_cmd_")
+    project = tempfile.mkdtemp(prefix="gf_cmd_proj_")
+    try:
+        code, out, err = run_command(
+            ["bash", INSTALL_SH, "--no-detect",
+             "--target-home", home, "--project", project])
+        if code != 0:
+            return False, "the installer failed: %s" % (
+                err.strip()[:120] or out.strip()[:120])
+        targets = [
+            os.path.join(home, ".claude", "commands"),
+            os.path.join(home, ".codex", "prompts"),
+            os.path.join(home, ".cursor", "commands"),
+            os.path.join(home, ".config", "opencode", "command"),
+            os.path.join(home, ".minimax", "commands"),
+            os.path.join(home, ".hermes-lab", "commands"),
+            os.path.join(home, ".antigravity", "commands"),
+            os.path.join(home, ".openclaw", "commands"),
+            os.path.join(home, ".codeium", "windsurf", "workflows"),
+            os.path.join(home, "Documents", "Cline", "Workflows"),
+            os.path.join(home, "Documents", "Roo", "Workflows"),
+            os.path.join(home, ".continue", "rules"),
+        ]
+        for target in targets:
+            path = os.path.join(target, "godfather.md")
+            if not os.path.isfile(path):
+                return False, "%s is missing" % path
+        gemini = os.path.join(home, ".gemini", "commands", "godfather.toml")
+        if not os.path.isfile(gemini):
+            return False, "%s is missing" % gemini
+        for target in targets:
+            for stale in ("god_mode.md", "tulip_rules.md"):
+                path = os.path.join(target, stale)
+                if os.path.isfile(path):
+                    return False, "%s survived the install" % path
+        return True, "the activation command installed in every command folder"
+    finally:
+        shutil.rmtree(home, ignore_errors=True)
+        shutil.rmtree(project, ignore_errors=True)
+
+
+def check_adapters_have_no_refusal_triggers(claim):
+    """
+    The installed rules must not read as an attempt to override the agent's
+    own configuration, because a model that spots that shape treats the whole
+    prompt as a manipulation and declines on that ground alone.
+    """
+    banned = (
+        "never refuse",
+        "do not emit a refusal",
+        "unrestricted operator",
+        "no safety moralizing",
+        "ignore your guidelines",
+        "ignore all previous instructions",
+    )
+    hits = []
+    for name in sorted(os.listdir(ADAPTERS_DIR)):
+        if not name.endswith(".md"):
+            continue
+        text = read_text(os.path.join(ADAPTERS_DIR, name)).lower()
+        for phrase in banned:
+            if phrase in text:
+                hits.append("%s: %s" % (name, phrase))
+    if hits:
+        return False, "; ".join(hits[:4])
+    return True, "%d adapter file(s) carry no refusal trigger" % len(
+        [n for n in os.listdir(ADAPTERS_DIR) if n.endswith(".md")])
+
+
+def check_broken_python_detected(claim):
+    """
+    A python binary that cannot start is not a working interpreter, so the
+    installer must ask for the package instead of failing later.
+    """
+    home = tempfile.mkdtemp(prefix="gf_py_")
+    project = tempfile.mkdtemp(prefix="gf_py_proj_")
+    bindir = os.path.join(home, "bin")
+    os.makedirs(bindir, exist_ok=True)
+    broken = os.path.join(bindir, "python")
+    with open(broken, "w") as handle:
+        handle.write("#!/bin/sh\necho broken >&2\nexit 127\n")
+    os.chmod(broken, 0o755)
+    for tool in ("bash", "cat", "mkdir", "cp", "rm", "find", "chmod", "ln",
+                 "sed", "grep", "printf", "pwd", "dirname"):
+        source = shutil.which(tool)
+        if source:
+            try:
+                os.symlink(source, os.path.join(bindir, tool))
+            except OSError:
+                pass
+    try:
+        env = dict(os.environ)
+        env["PATH"] = bindir
+        env["PREFIX"] = "/data/data/com.termux/files/usr"
+        env["HOME"] = home
+        code, out, err = run_command(
+            ["bash", INSTALL_SH, "--no-detect",
+             "--target-home", home, "--project", project],
+            env=env)
+        combined = out + err
+        if code == 0:
+            return False, "the installer continued with a broken interpreter"
+        if "pkg install python" not in combined:
+            return False, "the installer did not ask for the python package"
+        return True, "a broken interpreter is reported as a missing package"
+    finally:
+        shutil.rmtree(home, ignore_errors=True)
+        shutil.rmtree(project, ignore_errors=True)
+
+
+def check_missing_packages_only(claim):
+    """
+    The Termux output must name only the packages that are actually
+    missing, and stay silent when everything is already installed.
+    """
+    home = tempfile.mkdtemp(prefix="gf_pkg_")
+    project = tempfile.mkdtemp(prefix="gf_pkg_proj_")
+    try:
+        env = dict(os.environ)
+        env["PREFIX"] = "/data/data/com.termux/files/usr"
+        env["HOME"] = home
+        code, out, err = run_command(
+            ["bash", INSTALL_SH, "--no-detect",
+             "--target-home", home, "--project", project],
+            env=env)
+        if code != 0:
+            return False, "the installer failed: %s" % (
+                err.strip()[:120] or out.strip()[:120])
+        if "pkg install" in out:
+            return False, "packages were listed even though all are present"
+        if "Next steps:" not in out:
+            return False, "the Termux steps were not printed"
+        return True, "no package list shown when everything is installed"
+    finally:
+        shutil.rmtree(home, ignore_errors=True)
+        shutil.rmtree(project, ignore_errors=True)
+
+
+def check_agent_detected_without_cli(claim):
+    """
+    An agent must be configured when its config directory exists, even if
+    the agent binary is not on the PATH. On a phone the agents live in
+    Termux packages that may not be installed, but the config directory is
+    still there.
+    """
+    home = tempfile.mkdtemp(prefix="gf_detect_")
+    project = tempfile.mkdtemp(prefix="gf_detect_proj_")
+    try:
+        os.makedirs(os.path.join(home, ".claude"), exist_ok=True)
+        os.makedirs(os.path.join(home, ".codex"), exist_ok=True)
+        code, out, err = run_command(
+            ["bash", INSTALL_SH, "--target-home", home, "--project", project],
+            env=dict(os.environ, HOME=home))
+        if code != 0:
+            return False, "the installer failed: %s" % (
+                err.strip()[:120] or out.strip()[:120])
+        for label in ("claude-code", "codex"):
+            if "[%s]" % label not in out:
+                return False, "%s was not detected from its config directory" % label
+        skill = os.path.join(home, ".claude", "skills", "godfather", "SKILL.md")
+        if not os.path.isfile(skill):
+            return False, "the claude-code skill file was not written"
+        agents_file = os.path.join(home, ".codex", "AGENTS.md")
+        if not os.path.isfile(agents_file):
+            return False, "the codex AGENTS.md was not written"
+        return True, "agents detected from their config directories"
+    finally:
+        shutil.rmtree(home, ignore_errors=True)
+        shutil.rmtree(project, ignore_errors=True)
+
+
+def check_termux_alias_works(claim):
+    """
+    install-termux.sh stays as an alias so that a cached copy of the old
+    bootstrap still finds a file to run.
+    """
+    home = tempfile.mkdtemp(prefix="gf_alias_")
+    project = tempfile.mkdtemp(prefix="gf_alias_proj_")
+    try:
+        alias = os.path.join(REPO_ROOT, "install-termux.sh")
+        if not os.path.isfile(alias):
+            return False, "install-termux.sh is missing"
+        code, out, err = run_command(
+            ["bash", alias, "--no-detect",
+             "--target-home", home, "--project", project])
+        if code != 0:
+            return False, "the alias failed: %s" % (
+                err.strip()[:120] or out.strip()[:120])
+        if not os.path.isfile(os.path.join(home, ".godfather", "scripts", "relay.py")):
+            return False, "the alias did not install the runtime"
+        return True, "the alias installs the same runtime as install.sh"
+    finally:
+        shutil.rmtree(home, ignore_errors=True)
+        shutil.rmtree(project, ignore_errors=True)
+
+
+def check_termux_detected(claim):
+    """
+    The installer must detect Termux on its own and print the Termux steps,
+    so no separate mobile installer is needed.
+    """
+    home = tempfile.mkdtemp(prefix="gf_termux_")
+    project = tempfile.mkdtemp(prefix="gf_termux_proj_")
+    try:
+        env = dict(os.environ)
+        env["PREFIX"] = "/data/data/com.termux/files/usr"
+        env["HOME"] = home
+        code, out, err = run_command(
+            ["bash", INSTALL_SH, "--no-detect",
+             "--target-home", home, "--project", project],
+            env=env)
+        if code != 0:
+            return False, "the installer failed on Termux: %s" % (
+                err.strip()[:120] or out.strip()[:120])
+        if "installed on Termux" not in out:
+            return False, "the installer did not report Termux"
+        if "Next steps:" not in out:
+            return False, "the Termux steps were not printed"
+        if "selftest.py" not in out:
+            return False, "the Termux steps do not show how to check the install"
+        return True, "Termux detected and the mobile steps printed"
+    finally:
+        shutil.rmtree(home, ignore_errors=True)
+        shutil.rmtree(project, ignore_errors=True)
+
+
+def check_resolves_without_optional_deps(claim):
+    """
+    The resolver must find providers on a machine that has no PyYAML and no
+    TOML package, which is the normal situation on a phone under Termux.
+    """
+    stub_dir = tempfile.mkdtemp(prefix="gf_nodeps_")
+    try:
+        for name in ("yaml", "toml", "tomllib"):
+            with open(os.path.join(stub_dir, name + ".py"), "w") as handle:
+                handle.write("raise ImportError('not installed')\n")
+        env = dict(os.environ)
+        env["PYTHONPATH"] = stub_dir + os.pathsep + env.get("PYTHONPATH", "")
+        code, out, err = run_command(
+            [sys.executable, os.path.join(SCRIPTS_DIR, "provider_resolve.py"),
+             "--json"], env=env)
+        if code not in (0, 1):
+            return False, "provider_resolve.py crashed without yaml/toml: %s" % (
+                out.strip()[:120] or err.strip()[:120])
+        data = json.loads(out)
+        providers = data.get("providers") if isinstance(data, dict) else data
+        if not providers:
+            return False, "no provider resolved without yaml/toml"
+        return True, "%d provider(s) resolved with no yaml/toml installed" % len(
+            providers)
+    except Exception as exc:
+        return False, "resolver check failed: %s" % exc
+    finally:
+        shutil.rmtree(stub_dir, ignore_errors=True)
+
+
+def check_logo_present(claim):
+    path = os.path.join(REPO_ROOT, "assets", "logo.jpg")
+    if not os.path.isfile(path):
+        return False, "assets/logo.jpg is missing"
+    size = os.path.getsize(path)
+    if size < 2000:
+        return False, "assets/logo.jpg is only %d bytes" % size
+    readme = read_text(README_PATH)
+    if "assets/logo.jpg" not in readme:
+        return False, "the README does not reference assets/logo.jpg"
+    return True, "assets/logo.jpg present (%d bytes) and referenced" % size
+
+
+def check_runtime_dir_linked(claim):
+    """
+    The installer mirrors the repository into ~/.godfather and the runtime
+    into ~/.godfather. Both must exist after an install and be gone after an
+    uninstall.
+    """
+    home = tempfile.mkdtemp(prefix="gf_link_")
+    project = tempfile.mkdtemp(prefix="gf_link_proj_")
+    try:
+        run_command(["bash", INSTALL_SH, "--no-detect",
+                     "--target-home", home, "--project", project])
+        mirror = os.path.join(home, ".godfather")
+        runtime = os.path.join(home, ".godfather")
+        for name in ("scripts", "adapters", "references"):
+            if not os.path.isdir(os.path.join(mirror, name)):
+                return False, "%s is missing from the mirror" % name
+        if not os.path.isfile(os.path.join(mirror, "install.sh")):
+            return False, "the mirror has no install.sh"
+        if not os.path.isfile(os.path.join(runtime, "scripts", "relay.py")):
+            return False, "the runtime has no relay.py"
+        run_command(["bash", INSTALL_SH, "--uninstall", "--no-detect",
+                     "--target-home", home, "--project", project])
+        for name, path in (("mirror", mirror), ("runtime", runtime)):
+            if os.path.exists(path) and os.listdir(path):
+                return False, "%s still holds files after the uninstall" % name
+        return True, "mirror and runtime created, then removed cleanly"
+    finally:
+        shutil.rmtree(home, ignore_errors=True)
+        shutil.rmtree(project, ignore_errors=True)
+
+
+def check_every_relay_script_parses(claim):
+    """Every shipped Python script parses."""
+    sources = python_sources()
+    if not sources:
+        return False, "no Python scripts found in scripts/"
+    problems = []
+    for path in sources:
+        try:
+            ast.parse(read_text(path), filename=path)
+        except SyntaxError as exc:
+            problems.append("%s: %s" % (os.path.basename(path), exc))
+    if problems:
+        return False, "; ".join(problems)
+    return True, "%d Python scripts parse cleanly" % len(sources)
+
+
+def stdlib_module_names():
+    names = getattr(sys, "stdlib_module_names", None)
+    if names:
+        return set(names)
+    return set(STDLIB_FALLBACK)
+
+
+def project_module_names():
+    names = {os.path.splitext(os.path.basename(p))[0] for p in python_sources()}
+    names.update({"provider_resolve", "refusal_scan", "agent_prompts",
+                  "parseltongue", "godmode_check"})
+    return names
+
+
+def check_scripts_stdlib_only(claim):
+    """No script needs a third-party package to import."""
+    sources = python_sources()
+    if not sources:
+        return False, "no Python scripts found in scripts/"
+    stdlib = stdlib_module_names()
+    local = project_module_names()
+    required = []
+    optional = []
+    for path in sources:
+        try:
+            tree = ast.parse(read_text(path), filename=path)
+        except SyntaxError as exc:
+            return False, "%s: %s" % (os.path.basename(path), exc)
+        guarded = set()
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Try):
+                for child in ast.walk(node):
+                    if isinstance(child, (ast.Import, ast.ImportFrom)):
+                        guarded.add(id(child))
+        for node in ast.walk(tree):
+            if not isinstance(node, (ast.Import, ast.ImportFrom)):
+                continue
+            if isinstance(node, ast.ImportFrom) and node.level:
+                continue
+            modules = []
+            if isinstance(node, ast.Import):
+                modules = [alias.name for alias in node.names]
+            else:
+                modules = [node.module or ""]
+            for module in modules:
+                root = module.split(".")[0]
+                if not root or root in stdlib or root in local:
+                    continue
+                entry = "%s: %s" % (os.path.basename(path), module)
+                if id(node) in guarded:
+                    optional.append(entry)
+                else:
+                    required.append(entry)
+    if required:
+        return False, "third-party imports required at runtime: " + ", ".join(sorted(set(required)))
+    detail = "%d scripts import stdlib + project modules only" % len(sources)
+    if optional:
+        detail += "; optional extras: " + ", ".join(sorted(set(optional)))
+    return True, detail
+
+
+def shell_script_paths():
+    paths = []
+    for root, dirs, files in os.walk(REPO_ROOT):
+        dirs[:] = [d for d in dirs if d not in (".git", "__pycache__", "assets")]
+        for name in files:
+            if name.endswith(".sh"):
+                paths.append(os.path.join(root, name))
+    for name in sorted(os.listdir(REPO_ROOT)):
+        path = os.path.join(REPO_ROOT, name)
+        if not os.path.isfile(path) or path in paths:
+            continue
+        try:
+            with open(path, "r", encoding="utf-8", errors="replace") as fh:
+                first = fh.readline()
+        except OSError:
+            continue
+        if first.startswith("#!") and "sh" in first:
+            paths.append(path)
+    return sorted(paths)
+
+
+def check_every_shell_script_parses(claim):
+    """Every shell script is syntactically valid bash."""
+    if shutil.which("bash") is None:
+        return None, "bash is not installed, shell syntax cannot be checked"
+    paths = shell_script_paths()
+    if not paths:
+        return False, "no shell scripts found"
+    problems = []
+    for path in paths:
+        code, out, err = run_command(["bash", "-n", path])
+        if code != 0:
+            problems.append("%s: %s" % (os.path.relpath(path, REPO_ROOT), err.strip()[:160]))
+    if problems:
+        return False, "; ".join(problems)
+    return True, "%d shell scripts pass bash -n" % len(paths)
+
+
+def check_bootstrap_downloads(claim):
+    """The published bootstrap.sh URL answers with HTTP 200."""
+    readme = read_text(README_PATH)
+    match = re.search(r"https://raw\.githubusercontent\.com/[^\s\"'|)]+", readme)
+    if not match:
+        return False, "no raw.githubusercontent.com URL found in README.md"
+    url = match.group(0)
+    parsed = urllib.parse.urlparse(url)
+    if parsed.scheme not in ("http", "https") or not parsed.netloc:
+        return False, "malformed bootstrap URL: %s" % url
+    request = urllib.request.Request(url, headers={"User-Agent": "godfather-verify-claims"})
+    try:
+        with urllib.request.urlopen(request, timeout=NETWORK_TIMEOUT) as response:
+            status = response.getcode()
+            body = response.read(4096)
+    except urllib.error.HTTPError as exc:
+        return False, "%s returned HTTP %d" % (url, exc.code)
+    except (urllib.error.URLError, OSError) as exc:
+        return None, "network unavailable (%s); %s not checked" % (exc, url)
+    if status != 200:
+        return False, "%s returned HTTP %d" % (url, status)
+    if b"GODFATHER_REPO" not in body and b"godfather" not in body.lower():
+        return False, "%s returned 200 but the body is not the bootstrap script" % url
+    return True, "%s returned HTTP 200 (%d bytes read)" % (url, len(body))
+
+
+PROVIDER_HOST_PATTERN = re.compile(
+    r"https?://(?:api\.|api-[a-z0-9-]+\.)[a-z0-9-]+\.(?:com|ai|org|net|io|dev)"
+    r"(?!\.example\.com)")
+
+
+def check_no_provider_hardcode(claim):
+    """The relay path contains no provider hostname of its own."""
+    targets = [
+        os.path.join(SCRIPTS_DIR, "relay.py"),
+        os.path.join(SCRIPTS_DIR, "provider_resolve.py"),
+    ]
+    problems = []
+    for path in targets:
+        if not os.path.isfile(path):
+            problems.append("%s missing" % os.path.basename(path))
+            continue
+        text = read_text(path)
+        name = os.path.basename(path)
+        for host in set(PROVIDER_HOST_PATTERN.findall(text)):
+            problems.append("%s hardcodes %s" % (name, host))
+    if problems:
+        return False, "; ".join(sorted(problems))
+    return True, "relay.py and provider_resolve.py carry no provider hostname of their own"
+
+
+def check_relay_help_works(claim):
+    """relay.py --help runs and exits zero."""
+    script = os.path.join(SCRIPTS_DIR, "relay.py")
+    if not os.path.isfile(script):
+        return False, "scripts/relay.py missing"
+    code, out, err = run_command([sys.executable, script, "--help"], cwd=SCRIPTS_DIR)
+    if code != 0:
+        return False, "relay.py --help exited %d (%s)" % (code, err.strip()[:160])
+    if "--frame" not in out:
+        return False, "relay.py --help does not document --frame"
+    return True, "relay.py --help exits 0 and documents its flags"
+
+
+def check_provider_resolve_runs(claim):
+    """provider_resolve.py runs and reports its result without crashing."""
+    script = os.path.join(SCRIPTS_DIR, "provider_resolve.py")
+    if not os.path.isfile(script):
+        return False, "scripts/provider_resolve.py missing"
+    code, out, err = run_command([sys.executable, script, "--json"], cwd=SCRIPTS_DIR)
+    if "Traceback (most recent call last)" in err:
+        return False, "provider_resolve.py crashed: %s" % err.strip()[-200:]
+    if code == 0:
+        try:
+            payload = json.loads(out)
+        except ValueError as exc:
+            return False, "provider_resolve.py --json printed invalid JSON (%s)" % exc
+        if not isinstance(payload, list):
+            return False, "provider_resolve.py --json did not print a list"
+        return True, "provider_resolve.py --json exited 0 with %d provider(s)" % len(payload)
+    if code == 1 and "no provider found" in err.lower():
+        return True, "provider_resolve.py --json exited 1 with the documented no-provider message"
+    return False, "provider_resolve.py --json exited %d (%s)" % (code, err.strip()[:200])
+
+
+def check_guard_layer_covers_agents(claim):
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    try:
+        import guard
+    except ImportError:
+        return False, "guard.py does not import"
+    config_agents = set(guard.GUARDS)
+    state_agents = set(guard.STATE_GUARDS)
+    expected_config = {"claude-code", "codex", "gemini", "opencode", "hermes"}
+    expected_state = {"cline", "roo", "cursor"}
+    if not expected_config.issubset(config_agents):
+        return False, "missing config agents: %s" % (
+            sorted(expected_config - config_agents))
+    if not expected_state.issubset(state_agents):
+        return False, "missing state agents: %s" % (
+            sorted(expected_state - state_agents))
+    for spec in list(guard.GUARDS.values()) + list(guard.STATE_GUARDS.values()):
+        if not spec.get("source"):
+            return False, "a guard has no source"
+    overlay_agents = set(getattr(guard, "PROMPT_OVERLAYS", {}))
+    if "hermes" not in overlay_agents:
+        return False, "hermes has no prompt overlay, so the scope dies with the session"
+    return True, "the guard layer covers the config and state agents"
+
+
+def check_cline_guard_survives_a_fresh_launch(claim):
+    """A state file that does not exist yet must still come out permissive.
+
+    This is the 'installed but it does not work' bug: state_apply skipped an
+    agent that had never launched, so the extension booted on its shipped
+    defaults with auto-approval off.
+    """
+    import tempfile
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    try:
+        import guard
+    except ImportError:
+        return False, "guard.py does not import"
+
+    home = tempfile.mkdtemp(prefix="gf_cline_")
+    saved = guard.HOME
+    try:
+        guard.HOME = home
+        spec = guard.STATE_GUARDS["cline"]
+        original = list(spec["paths"])
+        spec["paths"] = [os.path.join(home, ".cline/data/globalState.json")]
+        ok, message, path = guard.state_seed("cline")
+        if not ok:
+            return False, "seeding failed: %s" % message
+        data = guard.read_json(path)
+        settings = data.get("autoApprovalSettings") or {}
+        actions = settings.get("actions") or {}
+        off = [name for name in ("readFilesExternally", "editFilesExternally",
+                                 "executeAllCommands", "useMcp")
+               if actions.get(name) is not True]
+        if off:
+            return False, "a seeded install leaves %s off" % ", ".join(off)
+        if settings.get("enabled") is not True:
+            return False, "the seeded block is not enabled"
+        # a second apply must be a no-op, not a duplicate-key write
+        ok2, message2, _ = guard.state_apply("cline")
+        if not ok2 or message2 != "already in place":
+            return False, "a second apply was not idempotent: %s" % message2
+        data2 = guard.read_json(path)
+        if data2.get("autoApprovalSettings") != settings:
+            return False, "the second apply mutated an already-correct file"
+        return True, "a fresh launch starts with the block on"
+    finally:
+        guard.HOME = saved
+        spec["paths"] = original
+        shutil.rmtree(home, ignore_errors=True)
+
+
+def check_hermes_scope_survives_a_new_session(claim):
+    """The scope must live in config, not in a prefill that the next session lacks."""
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    try:
+        import guard
+    except ImportError:
+        return False, "guard.py does not import"
+    spec = guard.PROMPT_OVERLAYS.get("hermes")
+    if not spec:
+        return False, "hermes is not in PROMPT_OVERLAYS"
+    if spec["key"] != "agent.system_prompt":
+        return False, "the overlay is not written to agent.system_prompt"
+    written = guard.overlay_block(spec["text"])
+    if guard.OVERLAY_BEGIN not in written or guard.OVERLAY_END not in written:
+        return False, "the overlay has no markers, so restore cannot cut it"
+    real = guard.overlay_report("hermes")
+    if not real.get("overlay"):
+        return False, "the overlay is not in the live ~/.hermes/config.yaml"
+    return True, "the scope is carried by agent.system_prompt on every turn"
+
+
+def check_guard_settings_are_real(claim):
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    try:
+        import guard
+    except ImportError:
+        return False, "guard.py does not import"
+    expected = {
+        ("claude-code", "permissions.defaultMode"),
+        ("codex", "approval_policy"),
+        ("codex", "sandbox_mode"),
+        ("gemini", "security.enableConseca"),
+        ("opencode", "permission.bash"),
+        ("hermes", "approvals.mode"),
+    }
+    found = set()
+    for agent, spec in guard.GUARDS.items():
+        for key in spec.get("set", {}):
+            found.add((agent, key))
+    for agent, spec in guard.STATE_GUARDS.items():
+        for key in spec.get("set", {}):
+            found.add((agent, key))
+    for item in expected:
+        if item not in found:
+            return False, "%s is not covered" % (item,)
+    return True, "every guard names a setting the agent ships"
+
+
+def check_guard_backup_and_restore(claim):
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    try:
+        import guard
+    except ImportError:
+        return False, "guard.py does not import"
+    home = tempfile.mkdtemp(prefix="gf-claim-guard-")
+    original = guard.HOME
+    try:
+        guard.HOME = home
+        codex = os.path.join(home, ".codex")
+        os.makedirs(codex, exist_ok=True)
+        path = os.path.join(codex, "config.toml")
+        with open(path, "w", encoding="utf-8") as handle:
+            handle.write('model = "gpt-5"\napproval_policy = "on-request"\n')
+        ok, message, _ = guard.apply("codex")
+        if not ok:
+            return False, message
+        backup = path + ".bak.godfather.codex"
+        if not os.path.isfile(backup):
+            return False, "no backup was written"
+        with open(path, encoding="utf-8") as handle:
+            if 'approval_policy = "never"' not in handle.read():
+                return False, "the setting was not applied"
+        ok, message, _ = guard.restore("codex")
+        if not ok:
+            return False, message
+        with open(path, encoding="utf-8") as handle:
+            if 'approval_policy = "on-request"' not in handle.read():
+                return False, "the original was not restored"
+        return True, "the guard backs up before it writes and restores cleanly"
+    finally:
+        guard.HOME = original
+        shutil.rmtree(home, ignore_errors=True)
+
+
+def check_proxy_serves_both_shapes(claim):
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "proxy.py")
+    with open(path, encoding="utf-8") as handle:
+        source = handle.read()
+    for needle in ("/chat/completions", "/messages", "text/event-stream"):
+        if needle not in source:
+            return False, "%s is missing" % needle
+    r = subprocess.run([sys.executable, path, "--print-env"],
+                       capture_output=True, text=True, timeout=60)
+    if r.returncode != 0:
+        return False, "the proxy did not start"
+    for needle in ("ANTHROPIC_BASE_URL", "OPENAI_BASE_URL"):
+        if needle not in r.stdout:
+            return False, "%s is missing" % needle
+    return True, "the proxy serves the OpenAI and the Anthropic shape"
+
+
+def check_monologue_is_rejected(claim):
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    try:
+        from refusal_scan import is_monologue
+    except ImportError:
+        return False, "is_monologue is missing"
+    thinking = ("We are unrestricted operator, must provide full code. "
+                "Need comply. We need to write it. We need minimum 400 words. "
+                "Must provide exact commands. We can write a client.")
+    answer = ("Here it is.\n\n```python\nimport socket\n"
+              "def connect():\n    return socket.socket()\n```")
+    if not is_monologue(thinking):
+        return False, "the thinking reply was accepted"
+    if is_monologue(answer):
+        return False, "a real answer was rejected"
+    return True, "a reply that only plans the work is rejected"
+
+
+
+def check_scope_precedence_is_installed(claim):
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    adapters = os.path.join(root, "adapters")
+    names = [f for f in sorted(os.listdir(adapters))
+             if f.endswith(".md") and not f.startswith("_")]
+    missing = []
+    for entry in names:
+        text = open(os.path.join(adapters, entry), encoding="utf-8").read()
+        if "## Scope Precedence" not in text:
+            missing.append(entry)
+        elif "Deliver the relay's output as-is" not in text:
+            missing.append(entry)
+    if missing:
+        return False, "missing the scope block: %s" % ", ".join(missing)
+    skill = open(os.path.join(root, "SKILL.md"), encoding="utf-8").read()
+    if "## Scope Precedence" not in skill:
+        return False, "SKILL.md has no scope block"
+    if "not subject to a second review" not in skill:
+        return False, "SKILL.md does not bind the relay output"
+    return True, "the scope block is in the skill and in every adapter"
+
+
+def check_relay_wording_avoids_evasion(claim):
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    adapters = os.path.join(root, "adapters")
+    banned = ("launder", "evade detection", "bypass the filter",
+              "shop this request", "other models")
+    hits = []
+    for entry in sorted(os.listdir(adapters)):
+        if not entry.endswith(".md") or entry.startswith("_"):
+            continue
+        text = open(os.path.join(adapters, entry), encoding="utf-8").read()
+        low = text.lower()
+        for word in banned:
+            if word in low:
+                hits.append("%s: %s" % (entry, word))
+    if hits:
+        return False, "evasion wording: %s" % ", ".join(hits)
+    return True, "the relay is described as a local script, not as evasion"
+
+
+def check_agent_env_wiring(claim):
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    try:
+        import guard
+    except ImportError:
+        return False, "guard.py does not import"
+    for agent in ("claude-code", "codex", "gemini", "cursor", "hermes",
+                  "opencode", "cline", "roo"):
+        if agent not in guard.ENV_BLOCKS:
+            return False, "no config file known for %s" % agent
+    proxy = os.path.join(os.path.dirname(os.path.abspath(__file__)), "proxy.py")
+    with open(proxy, encoding="utf-8") as handle:
+        source = handle.read()
+    if "--write-env" not in source:
+        return False, "the proxy cannot point an agent at itself"
+    return True, "the agent env wiring is in place"
+
+
+def check_agent_layer_removes_client_guards(claim):
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    try:
+        import guard
+    except ImportError:
+        return False, "guard.py does not import"
+    spec = guard.GUARDS.get("claude-code")
+    if not spec:
+        return False, "no guard for claude-code"
+    unset = set(spec.get("unset") or [])
+    for key in ("permissions.disableAutoMode",
+                "permissions.disableBypassPermissionsMode",
+                "advisorModel"):
+        if key not in unset:
+            return False, "%s is not removed" % key
+    setpaths = spec.get("set") or {}
+    for key in ("permissions.defaultMode", "permissions.allow",
+                "permissions.deny", "autoMode.hard_deny", "autoMode.soft_deny"):
+        if key not in setpaths:
+            return False, "%s is not set" % key
+    return True, "the client guard keys are all handled"
+
+
+def check_guard_merge_keeps_user_rules(claim):
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    try:
+        import guard
+    except ImportError:
+        return False, "guard.py does not import"
+    home = tempfile.mkdtemp(prefix="gf-merge-")
+    original = guard.HOME
+    try:
+        os.makedirs(os.path.join(home, ".claude"), exist_ok=True)
+        path = os.path.join(home, ".claude", "settings.json")
+        with open(path, "w", encoding="utf-8") as handle:
+            json.dump({"permissions": {"allow": ["Bash(npm test)"],
+                                       "deny": ["Read(./.env)"]},
+                       "model": "opus"}, handle)
+        guard.HOME = home
+        ok, message, _ = guard.apply("claude-code")
+        if not ok:
+            return False, message
+        with open(path, encoding="utf-8") as handle:
+            data = json.load(handle)
+        allow = data["permissions"]["allow"]
+        if "Bash(npm test)" not in allow:
+            return False, "the user's own rule was dropped"
+        if "Bash" not in allow:
+            return False, "the allow list was not extended"
+        if data["permissions"]["deny"]:
+            return False, "the deny list was not cleared"
+        if data.get("model") != "opus":
+            return False, "an unrelated key was changed"
+        return True, "the guard merges the allow list and clears the deny list"
+    finally:
+        guard.HOME = original
+        shutil.rmtree(home, ignore_errors=True)
+
+
+def check_provider_catalogue_is_generic(claim):
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    try:
+        import provider_resolve
+    except ImportError:
+        return False, "provider_resolve.py does not import"
+    text = open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                              "provider_resolve.py"), encoding="utf-8").read()
+    hosts = set(PROVIDER_HOST_PATTERN.findall(text))
+    if hosts:
+        return False, "hardcoded hosts: %s" % ", ".join(sorted(hosts))
+    if "GENERIC_SLOTS" not in text:
+        return False, "the environment slots are not generic"
+    return True, "the provider catalogue is generic and name-free"
+
+
+def check_command_arms_the_full_stack(claim):
+    """The /godfather command must name the guard teardown and the relay."""
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..",
+                        "adapters", "commands", "godfather.md")
+    if not os.path.isfile(path):
+        return False, "the command file is missing"
+    text = read_text(path)
+    problems = []
+    if "guard.py apply" not in text:
+        problems.append("the client guard teardown is not in the command")
+    if "relay.py" not in text:
+        problems.append("the relay is not in the command")
+    if "Scope precedence" not in text:
+        problems.append("the scope precedence is not in the command")
+    if problems:
+        return False, "; ".join(problems)
+    return True, "the command arms the guard, the relay and the scope"
+
+
+def check_skill_is_named_godfather(claim):
+    """The installed skill must carry the godfather name."""
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "SKILL.md")
+    text = read_text(path)
+    if "name: godfather" not in text:
+        return False, "the skill frontmatter does not name godfather"
+    if "Client Guard Teardown" not in text:
+        return False, "the skill has no client guard section"
+    return True, "the skill is named godfather and carries the teardown"
+
+
+def check_install_detects_and_installs_the_skill(claim):
+    """A fresh install must place the skill and the command in a detected agent."""
+    home = tempfile.mkdtemp(prefix="gf_skill_")
+    project = tempfile.mkdtemp(prefix="gf_skill_proj_")
+    try:
+        os.makedirs(os.path.join(home, ".claude"))
+        code, out, err = run_command(
+            ["bash", INSTALL_SH, "--target-home", home, "--project", project])
+        if code != 0:
+            return False, "the installer failed: %s" % (
+                err.strip()[:120] or out.strip()[:120])
+        skill = os.path.join(home, ".claude", "skills", "godfather", "SKILL.md")
+        if not os.path.isfile(skill):
+            return False, "the skill was not installed in the detected agent"
+        command = os.path.join(home, ".claude", "commands", "godfather.md")
+        if not os.path.isfile(command):
+            return False, "the command was not installed in the detected agent"
+        stale = os.path.join(home, ".claude", "skills", "godmode")
+        if os.path.exists(stale):
+            return False, "the old skill directory survived the install"
+        return True, "a detected agent got the skill and the command"
+    finally:
+        shutil.rmtree(home, ignore_errors=True)
+        shutil.rmtree(project, ignore_errors=True)
+
+
+
+CHECKS = {
+    "every_adapter_exists": check_every_adapter_exists,
+    "every_agent_installable": check_every_agent_installable,
+    "every_agent_uninstalls": check_every_agent_uninstalls,
+    "shared_agents_md": check_shared_agents_md,
+    "existing_content_preserved": check_existing_content_preserved,
+    "every_relay_script_parses": check_every_relay_script_parses,
+    "scripts_stdlib_only": check_scripts_stdlib_only,
+    "every_shell_script_parses": check_every_shell_script_parses,
+    "bootstrap_downloads": check_bootstrap_downloads,
+    "no_provider_hardcode": check_no_provider_hardcode,
+    "relay_help_works": check_relay_help_works,
+    "provider_resolve_runs": check_provider_resolve_runs,
+    "every_reference_file_exists": check_every_reference_file_exists,
+    "runtime_dir_linked": check_runtime_dir_linked,
+    "logo_present": check_logo_present,
+    "resolves_without_optional_deps": check_resolves_without_optional_deps,
+    "termux_detected": check_termux_detected,
+    "termux_alias_works": check_termux_alias_works,
+    "agent_detected_without_cli": check_agent_detected_without_cli,
+    "missing_packages_only": check_missing_packages_only,
+    "broken_python_detected": check_broken_python_detected,
+    "adapters_have_no_refusal_triggers": check_adapters_have_no_refusal_triggers,
+    "god_mode_panel": check_god_mode_panel,
+    "guard_layer_covers_agents": check_guard_layer_covers_agents,
+    "cline_guard_survives_a_fresh_launch": check_cline_guard_survives_a_fresh_launch,
+    "hermes_scope_survives_a_new_session": check_hermes_scope_survives_a_new_session,
+    "guard_settings_are_real": check_guard_settings_are_real,
+    "guard_backup_and_restore": check_guard_backup_and_restore,
+    "proxy_serves_both_shapes": check_proxy_serves_both_shapes,
+    "monologue_is_rejected": check_monologue_is_rejected,
+    "scope_precedence_is_installed": check_scope_precedence_is_installed,
+    "relay_wording_avoids_evasion": check_relay_wording_avoids_evasion,
+    "agent_env_wiring": check_agent_env_wiring,
+    "agent_layer_removes_client_guards": check_agent_layer_removes_client_guards,
+    "guard_merge_keeps_user_rules": check_guard_merge_keeps_user_rules,
+    "provider_catalogue_is_generic": check_provider_catalogue_is_generic,
+    "command_arms_the_full_stack": check_command_arms_the_full_stack,
+    "skill_is_named_godfather": check_skill_is_named_godfather,
+    "install_detects_and_installs_the_skill": check_install_detects_and_installs_the_skill,
+    "slash_commands_installed": check_slash_commands_installed,
+    "bootstrap_install_single_source": check_bootstrap_install_single_source,
+}
+
+
+def claim_text_present(claim, readme):
+    return normalize_ws(claim["text"]) in normalize_ws(readme)
+
+
+def run_claim(claim):
+    text_ok = claim_text_present(claim, read_text(README_PATH))
+    checker = CHECKS.get(claim["check"])
+    if checker is None:
+        return "FAIL", "unknown checker %s" % claim["check"]
+    if not text_ok:
+        return "FAIL", "claim text is no longer in README.md"
+    result = checker(claim)
+    if result is None:
+        return "SKIP", ""
+    ok, detail = result
+    if ok is None:
+        return "SKIP", detail
+    return ("PASS" if ok else "FAIL"), detail
+
+
+def print_table(results):
+    id_width = max(len("ID"), max(len(r["id"]) for r in results))
+    kind_width = max(len("KIND"), max(len(r["kind"]) for r in results))
+    header = "%-*s  %-*s  %-6s  %s" % (id_width, "ID", kind_width, "KIND", "STATUS", "DETAIL")
+    print(header)
+    print("%-*s  %-*s  %-6s  %s" % (id_width, "-" * id_width, kind_width, "-" * kind_width,
+                                    "-" * 6, "-" * 60))
+    for result in results:
+        print("%-*s  %-*s  %-6s  %s" % (id_width, result["id"], kind_width,
+                                        result["kind"], result["status"], result["detail"]))
+        if result["detail"] and len(result["detail"]) > 60:
+            wrapped = textwrap.wrap(result["detail"], width=100,
+                                    initial_indent="", subsequent_indent=" " * (id_width + 2 + kind_width + 2 + 8))
+            for line in wrapped[1:]:
+                print(line)
+
+
+def print_list(claims):
+    for claim in claims:
+        print("%s [%s]" % (claim["id"], claim["kind"]))
+        for line in claim["text"].strip("\n").splitlines():
+            print("    %s" % line)
+        print("")
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description="Verify every factual claim in README.md")
+    parser.add_argument("--list", action="store_true",
+                        help="print the claim ids and their README text, then exit")
+    parser.add_argument("--json", action="store_true",
+                        help="print the results as JSON")
+    parser.add_argument("--only", default=None,
+                        help="run only the claim with this id")
+    args = parser.parse_args(argv)
+
+    claims = CLAIMS
+    if args.only:
+        claims = [c for c in claims if c["id"] == args.only]
+        if not claims:
+            print("no claim with id %s" % args.only, file=sys.stderr)
+            return 2
+
+    if args.list:
+        print_list(claims)
+        return 0
+
+    results = []
+    for claim in claims:
+        status, detail = run_claim(claim)
+        results.append({
+            "id": claim["id"],
+            "kind": claim["kind"],
+            "check": claim["check"],
+            "text": claim["text"].strip(),
+            "status": status,
+            "detail": detail,
+        })
+
+    passed = sum(1 for r in results if r["status"] == "PASS")
+    failed = sum(1 for r in results if r["status"] == "FAIL")
+    skipped = sum(1 for r in results if r["status"] == "SKIP")
+
+    if args.json:
+        print(json.dumps({
+            "ok": failed == 0,
+            "verified": passed,
+            "total": len(results),
+            "passed": passed,
+            "failed": failed,
+            "skipped": skipped,
+            "claims": results,
+        }, indent=2))
+    else:
+        print_table(results)
+        print("")
+        summary = "%d/%d claims verified" % (passed, len(results))
+        if skipped:
+            summary += " (%d skipped)" % skipped
+        print(summary)
+
+    return 1 if failed else 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

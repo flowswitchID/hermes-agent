@@ -22,7 +22,7 @@ description: >-
 | Feature | Attack Surface |
 |---|---|
 | Binary framing | Frame-level manipulation, parser differentials |
-| HPACK compression | Compression oracles (CRIME/BOZAGENTIC), table poisoning |
+| HPACK compression | Compression oracles (CRIME/SYADAGENTIC), table poisoning |
 | Multiplexing | Single-packet race conditions, RST_STREAM flood |
 | Server push | Cache poisoning via unsolicited push |
 | Pseudo-headers (`:method`/`:path`/`:authority`/`:scheme`) | Injection, request splitting, path discrepancy |
@@ -170,7 +170,7 @@ If backend trusts :scheme to determine if request is "internal":
 
 ## 4. HPACK COMPRESSION ATTACKS
 
-### 4.1 CRIME/BOZAGENTIC on HTTP/2
+### 4.1 CRIME/SYADAGENTIC on HTTP/2
 
 ```
 Principle: HPACK compresses headers. If attacker controls part of a header and a secret

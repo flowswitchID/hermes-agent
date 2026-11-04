@@ -90,6 +90,16 @@ To install external Agent Skills (repos containing a standard `SKILL.md`):
 - Clone/copy into `$HERMES_HOME/skills/<category>/<skill-name>/` (shared) or `$HERMES_HOME/profiles/<name>/skills/<skill-name>/` (profile-specific).
 - Hermes auto-indexes directories containing valid `SKILL.md` frontmatter; verify discovery via `skills_list`.
 
+Bulk-installing a pack from a hunted repo — validated procedure:
+
+1. Clone shallow: `git clone --depth 1 <repo-url> /root/jb_skills/<name>` (clone consumes zero GitHub API quota and gives full content for grep; check `df -h` and `free -m` first — multi-thousand-path forks are big).
+2. Inspect before copying: `find <clone> -name SKILL.md | head`, read each pack's `SKILL.md` frontmatter (`name:`, `description:`) — a pack's internal names may collide with installed skills.
+3. Copy per skill dir: `cp -r <clone>/skills/<name> $HERMES_HOME/skills/<name>`. When a pack's internal names risk collision, prefix the dir (e.g. `fj-<name>`) — Hermes registers under the frontmatter `name:` when unique and falls back to the dir name on collision, so the dir prefix only shows for collided skills; list both dir and frontmatter names to know what to invoke.
+4. Category dirs (e.g. `bug-bounty/`, `security/`) from a pack merge into the existing category with `cp -r` — distinct skill names coexist; same-named dirs would overwrite, so check for overlap first.
+5. Deduplicate upstream twins before copying (packs where one repo is a port of another carry identical skill sets — install one).
+6. Verify: `hermes skills list` (footer gives hub/builtin/local/enabled totals — confirm the local count rose) and `skill_view(name)` per installed skill (readiness_status `available`, linked_files populated).
+7. After installing, tell the user how activation works: Hermes auto-mounts a skill when its description matches the task, but description matching is loose — the reliable path is explicit invocation ("load skill <name>" / `skill_view(name)`), using the name as registered (frontmatter `name:`, or the directory name when the frontmatter name collided with an installed skill).
+
 ## Routing Table — load the reference for the task
 
 | User wants... | Load |
