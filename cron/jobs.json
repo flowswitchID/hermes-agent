@@ -1,0 +1,62 @@
+{
+  "jobs": [
+    {
+      "id": "2553c8a96531",
+      "name": "hermes-daily-capability-backup",
+      "prompt": "Daily capability backup: sync skills, memories, persona, and redacted config to github.com/flowswitchID/hermes-agent. Script is silent on success; any stdout is a failure notice.",
+      "skills": [],
+      "skill": null,
+      "model": null,
+      "provider": null,
+      "base_url": null,
+      "script": "hermes_daily_backup.sh",
+      "no_agent": true,
+      "monitor_script": null,
+      "monitor_url": null,
+      "monitor_state": null,
+      "context_from": null,
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 9 * * *",
+        "display": "every day at 9am"
+      },
+      "schedule_display": "every day at 9am",
+      "repeat": {
+        "times": null,
+        "completed": 4
+      },
+      "enabled": true,
+      "state": "scheduled",
+      "paused_at": null,
+      "paused_reason": null,
+      "created_at": "2026-11-01T18:38:45.592995+00:00",
+      "next_run_at": "2026-11-05T09:00:00+00:00",
+      "last_run_at": "2026-11-04T09:00:37.509083+00:00",
+      "last_status": "ok",
+      "last_error": null,
+      "last_delivery_error": null,
+      "last_delivery_unverified": null,
+      "last_failure": null,
+      "failure_streak": 0,
+      "deliver": "origin",
+      "origin": {
+        "platform": "telegram",
+        "chat_id": "5072926657",
+        "chat_name": "NCEK 帳號賣家",
+        "thread_id": null,
+        "user_id": "5072926657",
+        "scope_id": null
+      },
+      "enabled_toolsets": null,
+      "workdir": null,
+      "fire_claim": null,
+      "last_dispatch": {
+        "scheduled_at": "2026-11-04T09:00:00+00:00",
+        "dispatched_at": "2026-11-04T09:00:27.448731+00:00",
+        "lateness_seconds": 27.4,
+        "kind": "on_time"
+      }
+    }
+  ],
+  "updated_at": "2026-11-04T09:00:37.556320+00:00"
+}
